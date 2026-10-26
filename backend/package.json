@@ -1,0 +1,40 @@
+{
+  "name": "expresslaunch",
+  "version": "1.0.5",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "expresslaunch": "src/index.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "expressjs",
+    "backend",
+    "api",
+    "rest-api",
+    "boilerplate",
+    "backend-starter",
+    "express-boilerplate",
+    "cli",
+    "generator",
+    "mongoose"
+  ],
+  "author": "Akhil",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.3.0",
+    "mongoose": "^9.9.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
