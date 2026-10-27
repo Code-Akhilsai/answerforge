@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Mic, Volume2, Play, Pause, ArrowRight, LogIn, Sparkles } from "lucide-react";
+import {
+  Mic,
+  Volume2,
+  Play,
+  Pause,
+  ArrowRight,
+  LogIn,
+  Sparkles,
+} from "lucide-react";
 
 export default function Hero({ onOpenSignInModal, onScrollToDemo }) {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -8,29 +16,34 @@ export default function Hero({ onOpenSignInModal, onScrollToDemo }) {
   const samplePrompts = [
     {
       role: "Software Engineering",
-      question: "How would you design a rate limiter to handle sudden traffic spikes across multiple microservices?"
+      question:
+        "How would you design a rate limiter to handle sudden traffic spikes across multiple microservices?",
     },
     {
       role: "Product Management",
-      question: "How do you decide between shipping a quick MVP versus building a scalable architecture from day one?"
+      question:
+        "How do you decide between shipping a quick MVP versus building a scalable architecture from day one?",
     },
     {
       role: "Behavioral & STAR",
-      question: "Tell me about a time you had a major disagreement with a team member. How did you resolve it?"
-    }
+      question:
+        "Tell me about a time you had a major disagreement with a team member. How did you resolve it?",
+    },
   ];
 
   const handleTogglePlay = () => {
     if (isPlayingAudio) {
-      if ('speechSynthesis' in window) {
+      if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
       setIsPlayingAudio(false);
     } else {
       setIsPlayingAudio(true);
-      if ('speechSynthesis' in window) {
+      if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(samplePrompts[activePromptIndex].question);
+        const utterance = new SpeechSynthesisUtterance(
+          samplePrompts[activePromptIndex].question,
+        );
         utterance.rate = 0.96;
         utterance.pitch = 1.0;
         utterance.onend = () => setIsPlayingAudio(false);
@@ -45,7 +58,6 @@ export default function Hero({ onOpenSignInModal, onScrollToDemo }) {
   return (
     <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-grid-subtle relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        
         {/* Simple Pill */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 mb-6">
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
@@ -55,15 +67,16 @@ export default function Hero({ onOpenSignInModal, onScrollToDemo }) {
         {/* Clear Headline */}
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
           AI-Powered Spoken{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-300">
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-400 to-indigo-300">
             Interview Practice
           </span>
         </h1>
 
         <p className="mt-5 text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-          Don't just type text answers. Speak aloud to realistic AI interview questions. 
-          Gnani’s speech engine transcribes your voice, flags filler words like "um" and "like", 
-          measures your speaking pace, and delivers instant actionable feedback.
+          Don't just type text answers. Speak aloud to realistic AI interview
+          questions. Gnani’s speech engine transcribes your voice, flags filler
+          words like "um" and "like", measures your speaking pace, and delivers
+          instant actionable feedback.
         </p>
 
         {/* Action Buttons */}
@@ -99,7 +112,7 @@ export default function Hero({ onOpenSignInModal, onScrollToDemo }) {
                   key={idx}
                   onClick={() => {
                     setActivePromptIndex(idx);
-                    if (isPlayingAudio && 'speechSynthesis' in window) {
+                    if (isPlayingAudio && "speechSynthesis" in window) {
                       window.speechSynthesis.cancel();
                       setIsPlayingAudio(false);
                     }
@@ -119,7 +132,7 @@ export default function Hero({ onOpenSignInModal, onScrollToDemo }) {
           <div className="mt-3 flex items-center gap-3">
             <button
               onClick={handleTogglePlay}
-              className="flex-shrink-0 w-9 h-9 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center transition-transform active:scale-95 shadow-sm"
+              className="shrink-0 w-9 h-9 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center transition-transform active:scale-95 shadow-sm"
               aria-label={isPlayingAudio ? "Pause sample" : "Play sample"}
             >
               {isPlayingAudio ? (
@@ -133,7 +146,6 @@ export default function Hero({ onOpenSignInModal, onScrollToDemo }) {
             </p>
           </div>
         </div>
-
       </div>
     </section>
   );

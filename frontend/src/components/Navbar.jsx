@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Mic, LogIn, Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Mic, LogIn, Menu, X, LayoutDashboard } from "lucide-react";
 
 export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
   const [scrolled, setScrolled] = useState(false);
@@ -20,19 +21,18 @@ export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
   ];
 
   return (
-    <header 
+    <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? "bg-[#090a0f]/90 backdrop-blur-md border-b border-zinc-800 shadow-xl py-3.5" 
+        scrolled
+          ? "bg-[#090a0f]/90 backdrop-blur-md border-b border-zinc-800 shadow-xl py-3.5"
           : "bg-transparent py-5"
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
-            <a href="#" className="flex items-center gap-2.5 group">
+            <Link to="/" className="flex items-center gap-2.5 group">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
                 <Mic className="w-4 h-4" />
               </div>
@@ -44,7 +44,7 @@ export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
                   Gnani AI Voice
                 </span>
               </div>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Nav Links */}
@@ -58,6 +58,13 @@ export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
                 {link.name}
               </a>
             ))}
+            <Link
+              to="/dashboard"
+              className="text-sm font-medium text-zinc-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </Link>
           </nav>
 
           {/* Right Action: Clean Sign In button */}
@@ -78,10 +85,13 @@ export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
               className="p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white"
               aria-label="Toggle Navigation"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </button>
           </div>
-
         </div>
 
         {/* Mobile Dropdown */}
@@ -97,6 +107,14 @@ export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
                 {link.name}
               </a>
             ))}
+            <Link
+              to="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-cyan-400 py-1 flex items-center gap-1.5"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </Link>
             <div className="pt-2 border-t border-zinc-800">
               <button
                 onClick={() => {
@@ -111,7 +129,6 @@ export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
             </div>
           </div>
         )}
-
       </div>
     </header>
   );

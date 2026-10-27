@@ -1,61 +1,45 @@
-import React, { useState } from "react";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import InteractiveInterviewSandbox from "./components/InteractiveInterviewSandbox";
-import HowItWorks from "./components/HowItWorks";
-import GnaniTechPillars from "./components/GnaniTechPillars";
-import Footer from "./components/Footer";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
 import SignInModal from "./components/SignInModal";
 
 function App() {
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
-
-  const handleOpenSignIn = () => {
-    setIsSignInOpen(true);
-  };
-
-  const handleCloseSignIn = () => {
-    setIsSignInOpen(false);
-  };
-
-  const handleScrollToDemo = () => {
-    const el = document.getElementById("interactive-sandbox");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#090a0f] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-200">
-      {/* Navbar with Sign In Button */}
-      <Navbar
-        onOpenSignInModal={handleOpenSignIn}
-        onScrollToDemo={handleScrollToDemo}
-      />
+    <BrowserRouter>
+      <Routes>
+        {/* Landing Page */}
+        <Route path="/" element={<Home />} />
 
-      <main className="flex-1">
-        {/* Clean Hero with Audio Sample Question */}
-        <Hero
-          onOpenSignInModal={handleOpenSignIn}
-          onScrollToDemo={handleScrollToDemo}
+        {/* Dashboard Page */}
+        <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Sign In Routes */}
+        <Route
+          path="/signin"
+          element={
+            <Home>
+              <SignInModal isSignUp={false} />
+            </Home>
+          }
         />
+        <Route path="/login" element={<Navigate to="/signin" replace />} />
 
-        {/* Live Interactive Voice Demo */}
-        <InteractiveInterviewSandbox />
+        {/* Sign Up / Registration Routes */}
+        <Route
+          path="/signup"
+          element={
+            <Home>
+              <SignInModal isSignUp={true} />
+            </Home>
+          }
+        />
+        <Route path="/register" element={<Navigate to="/signup" replace />} />
 
-        {/* How It Works (3 Steps) */}
-        <HowItWorks />
-
-        {/* Gnani Voice Intelligence Advantage */}
-        <GnaniTechPillars />
-      </main>
-
-      {/* Minimal Footer */}
-      <Footer onOpenSignInModal={handleOpenSignIn} />
-
-      {/* Clean Sign In Modal */}
-      <SignInModal isOpen={isSignInOpen} onClose={handleCloseSignIn} />
-    </div>
+        {/* Fallback Route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

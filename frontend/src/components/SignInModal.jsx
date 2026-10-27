@@ -1,45 +1,159 @@
-import React, { useState } from "react";
-import { X, Mic, ArrowRight, Lock, Mail, User, Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  X,
+  Mic,
+  ArrowRight,
+  Lock,
+  Mail,
+  User,
+  Check,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import api from "../api";
 
-export default function SignInModal({ isOpen, onClose }) {
-  const [isSignUp, setIsSignUp] = useState(false);
+export default function SignInModal({
+  isOpen = true,
+  onClose,
+  isSignUp: propIsSignUp,
+}) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isSignUpRoute =
+    location.pathname === "/signup" || location.pathname === "/register";
+
+  const [isSignUp, setIsSignUp] = useState(
+    propIsSignUp !== undefined ? propIsSignUp : isSignUpRoute,
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (propIsSignUp !== undefined) {
+      setIsSignUp(propIsSignUp);
+    } else {
+      setIsSignUp(
+        location.pathname === "/signup" || location.pathname === "/register",
+      );
+    }
+    setErrorMessage("");
+  }, [location.pathname, propIsSignUp]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitted(true);
-    setStatusMessage(isSignUp ? "Account created successfully!" : "Signed in successfully!");
-    
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setStatusMessage("");
+  const handleClose = () => {
+    if (onClose) {
       onClose();
-    }, 1200);
+    } else {
+      navigate("/");
+    }
+  };
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
+  const handleSwitchMode = (signUpMode) => {
+    setIsSignUp(signUpMode);
+    setErrorMessage("");
+    setIsSubmitted(false);
+    navigate(signUpMode ? "/signup" : "/signin");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        // Sign Up Flow - send fullName, email, password to backend
+        const response = await api.post("/register", {
+          fullName: name,
+          email,
+          password,
+        });
+
+        if (name) localStorage.setItem("userName", name);
+        if (email) localStorage.setItem("userEmail", email);
+
+        setIsSubmitted(true);
+        setStatusMessage(
+          response.data?.message || "Account created successfully!",
+        );
+
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setStatusMessage("");
+          if (onClose) onClose();
+          navigate("/dashboard");
+        }, 1000);
+      } else {
+        // Sign In Flow - send email and password to backend
+        const response = await api.post("/login", {
+          email,
+          password,
+        });
+
+        if (response.data?.user?.fullName) {
+          localStorage.setItem("userName", response.data.user.fullName);
+        } else if (!localStorage.getItem("userName")) {
+          localStorage.setItem("userName", email.split("@")[0]);
+        }
+        localStorage.setItem("userEmail", email);
+
+        setIsSubmitted(true);
+        setStatusMessage(response.data?.message || "Login successful!");
+
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setStatusMessage("");
+          if (onClose) onClose();
+          navigate("/dashboard");
+        }, 1000);
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "An unexpected error occurred. Please try again.";
+      setErrorMessage(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleAuth = () => {
+    localStorage.setItem("userName", "Alex Morgan");
+    localStorage.setItem("userEmail", "alex@answerforge.dev");
     setIsSubmitted(true);
     setStatusMessage("Authenticating with Google...");
     setTimeout(() => {
       setIsSubmitted(false);
       setStatusMessage("");
-      onClose();
+      if (onClose) onClose();
+      navigate("/dashboard");
     }, 1000);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+    <div
+      onClick={handleBackdropClick}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150"
+    >
       <div className="relative w-full max-w-md rounded-2xl bg-[#0e1117] border border-zinc-800 shadow-2xl overflow-hidden p-6 sm:p-7 text-slate-100">
-        
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-colors"
           aria-label="Close"
         >
@@ -55,10 +169,9 @@ export default function SignInModal({ isOpen, onClose }) {
             {isSignUp ? "Create your account" : "Sign in to AnswerForge"}
           </h2>
           <p className="text-xs text-zinc-400 mt-1.5 max-w-xs mx-auto">
-            {isSignUp 
-              ? "Start practicing high-stakes interviews with Gnani Voice AI" 
-              : "Welcome back! Enter your details to resume interview practice"
-            }
+            {isSignUp
+              ? "Start practicing high-stakes interviews with Gnani Voice AI"
+              : "Welcome back! Enter your details to resume interview practice"}
           </p>
         </div>
 
@@ -67,9 +180,10 @@ export default function SignInModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={handleGoogleAuth}
-            className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800/90 border border-zinc-700/80 text-xs font-semibold text-zinc-200 flex items-center justify-center gap-3 transition-colors shadow-sm active:scale-[0.99]"
+            disabled={loading || isSubmitted}
+            className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800/90 border border-zinc-700/80 text-xs font-semibold text-zinc-200 flex items-center justify-center gap-3 transition-colors shadow-sm active:scale-[0.99] disabled:opacity-60"
           >
-            <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
               <path
                 fill="#EA4335"
                 d="M12 5c1.5 0 2.8.5 3.9 1.4l2.9-2.9C17 1.8 14.7 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.5 2.7C6.3 7.2 8.9 5 12 5z"
@@ -103,6 +217,14 @@ export default function SignInModal({ isOpen, onClose }) {
           </div>
         </div>
 
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {/* Full Name field in Sign Up mode */}
@@ -119,7 +241,8 @@ export default function SignInModal({ isOpen, onClose }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Alex Morgan"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20 transition-all"
+                  disabled={loading || isSubmitted}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-xs placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-cyan-400/20 transition-all disabled:opacity-60"
                 />
               </div>
             </div>
@@ -137,7 +260,8 @@ export default function SignInModal({ isOpen, onClose }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20 transition-all"
+                disabled={loading || isSubmitted}
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-xs placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-cyan-400/20 transition-all disabled:opacity-60"
               />
             </div>
           </div>
@@ -150,7 +274,9 @@ export default function SignInModal({ isOpen, onClose }) {
               {!isSignUp && (
                 <button
                   type="button"
-                  onClick={() => alert("Password reset link sent to demo email!")}
+                  onClick={() =>
+                    alert("Password reset link sent to demo email!")
+                  }
                   className="text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors"
                 >
                   Forgot password?
@@ -162,10 +288,12 @@ export default function SignInModal({ isOpen, onClose }) {
               <input
                 type="password"
                 required
+                minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20 transition-all"
+                disabled={loading || isSubmitted}
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-700/80 text-xs placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-cyan-400/20 transition-all disabled:opacity-60"
               />
             </div>
           </div>
@@ -173,10 +301,17 @@ export default function SignInModal({ isOpen, onClose }) {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isSubmitted}
-            className="w-full mt-2 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-[0.99] disabled:opacity-80"
+            disabled={loading || isSubmitted}
+            className="w-full mt-2 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 active:scale-[0.99] disabled:opacity-75 disabled:cursor-not-allowed"
           >
-            {isSubmitted ? (
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>
+                  {isSignUp ? "Creating account..." : "Signing in..."}
+                </span>
+              </span>
+            ) : isSubmitted ? (
               <span className="flex items-center gap-1.5">
                 <Check className="w-3.5 h-3.5" />
                 <span>{statusMessage}</span>
@@ -197,10 +332,7 @@ export default function SignInModal({ isOpen, onClose }) {
               Already have an account?{" "}
               <button
                 type="button"
-                onClick={() => {
-                  setIsSignUp(false);
-                  setIsSubmitted(false);
-                }}
+                onClick={() => handleSwitchMode(false)}
                 className="text-cyan-400 font-semibold hover:text-cyan-300 hover:underline transition-colors"
               >
                 Sign in
@@ -211,10 +343,7 @@ export default function SignInModal({ isOpen, onClose }) {
               Don't have an account?{" "}
               <button
                 type="button"
-                onClick={() => {
-                  setIsSignUp(true);
-                  setIsSubmitted(false);
-                }}
+                onClick={() => handleSwitchMode(true)}
                 className="text-cyan-400 font-semibold hover:text-cyan-300 hover:underline transition-colors"
               >
                 Create one
@@ -222,7 +351,6 @@ export default function SignInModal({ isOpen, onClose }) {
             </span>
           )}
         </div>
-
       </div>
     </div>
   );
