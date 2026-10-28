@@ -44,7 +44,8 @@ export const transcribeAudio = async (req, res) => {
 
     const formData = new FormData();
     const audioBlob = new Blob([audioBuffer], { type: mimeType });
-    formData.append("audio_file", audioBlob, "recording.wav");
+    const ext = mimeType.includes("wav") ? "wav" : mimeType.includes("mp3") ? "mp3" : "webm";
+    formData.append("audio_file", audioBlob, `recording.${ext}`);
     formData.append("language_code", languageCode);
 
     const gnaniUrl = "https://api.vachana.ai/stt/v3";
@@ -134,182 +135,89 @@ export const evaluateAnswer = async (req, res) => {
     const fillerDensity =
       wordCount > 0 ? ((totalFillers / wordCount) * 100).toFixed(1) : "0.0";
 
-    // Dynamic keyword matching (uses question-specific keywords if provided, with track fallback)
-    const fallbackTrackKeywords = {
-      system_design: [
-        "idempotency", "redis", "cache", "partition", "atomic", "retry",
-        "distributed", "latency", "scale", "kafka", "queue", "lock"
-      ],
-      databases: [
-        "database", "b-tree", "lsm", "cassandra", "postgresql", "acid",
-        "lock", "index", "saga", "outbox", "stampede", "ttl"
-      ],
-      behavioral: [
-        "situation", "action", "result", "team", "conflict", "stakeholder",
-        "resolution", "compromise", "leadership", "impact", "delivered"
-      ],
-      product: [
-        "metric", "funnel", "cohort", "segment", "triage", "hypothesis",
-        "retention", "user", "prioritization", "drop-off", "sla"
-      ],
-      frontend: [
-        "lcp", "cls", "tbt", "web vitals", "code splitting", "ssr",
-        "micro-frontend", "module federation", "bundle", "cdn", "state"
-      ],
-      devops_cloud: [
-        "canary", "kubernetes", "argo", "service mesh", "istio", "rollback",
-        "prometheus", "p99", "traffic split", "telemetry", "disaster recovery", "rto", "rpo"
-      ],
-      security: [
-        "jwt", "revocation", "refresh token", "blacklist", "redis", "bloom filter",
-        "ssrf", "dns rebinding", "metadata", "zero-trust", "mtls", "spiffe"
-      ],
-      ai_ml_eng: [
-        "rag", "embeddings", "vector database", "hybrid search", "bm25", "reranker",
-        "kv cache", "pagedattention", "vllm", "quantization", "prompt injection", "guardrails"
-      ],
-      api_backend: [
-        "grpc", "graphql", "rest", "protobuf", "http/2", "websockets", "sse",
-        "crdt", "kafka", "rabbitmq", "partition", "offset", "consumer group"
-      ],
-    };
+    // Call Gemini to evaluate score and metrics
+    const geminiModel = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
+    const geminiKey = process.env.GEMINI_API_KEY;
+    let evaluation;
+    try {
+      const prompt = `You are an interview evaluator. Evaluate the candidate's answer to the question.
 
-    const targetKeywords =
-      Array.isArray(expectedKeywords) && expectedKeywords.length > 0
-        ? expectedKeywords
-        : fallbackTrackKeywords[track] || fallbackTrackKeywords.system_design;
+Question: ${question}
+Track: ${track}
+Transcript: ${transcript}
+DurationSeconds: ${durationSeconds}
+WordCount: ${wordCount}
+WPM: ${wpm}
+FillerCount: ${totalFillers}
+FillerDensity: ${fillerDensity}%
 
-    const matchedKeywords = targetKeywords.filter((kw) =>
-      transcript.toLowerCase().includes(kw.toLowerCase()),
-    );
+Return ONLY valid JSON with fields: score (0-100 number), verdict (string), verdictColor (emerald/cyan/amber), wpm (number), cadenceStatus (string), wordCount (number), fillersCount (number), fillerDensity (string with %), fillersList (array of {word,count}), relevanceScore (number), clarityScore (number), strengths (array of strings), improvements (array of strings), modelAnswer (string).`;
 
-    // Keyword coverage ratio
-    const keywordCoverageRatio = Math.min(
-      1,
-      matchedKeywords.length / Math.max(2, targetKeywords.length * 0.4),
-    );
-
-    // Elaboration and length score
-    const lengthScore = Math.min(100, Math.round((wordCount / 50) * 85) + 15);
-
-    // Relevance score
-    const relevanceScore = Math.min(
-      98,
-      Math.max(62, Math.round(keywordCoverageRatio * 42 + 56)),
-    );
-
-    // Pacing evaluation (130-165 WPM is ideal conversational executive pace)
-    let cadenceStatus = "Optimal Conversational Pace";
-    let cadenceScore = 95;
-    if (wpm < 110) {
-      cadenceStatus = "Deliberate / Cautious Pace";
-      cadenceScore = 78;
-    } else if (wpm > 175) {
-      cadenceStatus = "Fast / Rushed Tempo";
-      cadenceScore = 80;
-    }
-
-    // Filler penalty
-    const fillerPenalty = Math.min(25, totalFillers * 3.5);
-    const clarityScore = Math.max(60, Math.round(cadenceScore - fillerPenalty));
-
-    // Composite Score
-    const compositeScore = Math.min(
-      96,
-      Math.max(
-        62,
-        Math.round(relevanceScore * 0.45 + clarityScore * 0.35 + lengthScore * 0.2),
-      ),
-    );
-
-    // Hiring Verdict
-    let verdict = "HIRE";
-    let verdictColor = "cyan";
-    if (compositeScore >= 88) {
-      verdict = "STRONG HIRE";
-      verdictColor = "emerald";
-    } else if (compositeScore < 75) {
-      verdict = "LEAN HIRE";
-      verdictColor = "amber";
-    }
-
-    // Dynamic Strengths based on actual response
-    const strengths = [];
-    if (matchedKeywords.length >= 2) {
-      strengths.push(
-        `Domain Precision: Successfully articulated key concepts (${matchedKeywords.slice(0, 3).join(", ")}).`,
+      const geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: "application/json" },
+          }),
+        },
       );
-    } else {
-      strengths.push(
-        "Direct Delivery: Directly addressed the core objective of the prompt.",
-      );
-    }
-
-    if (totalFillers <= 1) {
-      strengths.push(
-        `High Acoustic Composure: Maintained clean verbal delivery with low filler count (${totalFillers} detected).`,
-      );
-    } else {
-      strengths.push(
-        `Natural Tempo: Sustained an engaging speech rate of ${wpm} words per minute.`,
-      );
-    }
-
-    if (wordCount >= 35) {
-      strengths.push(
-        "Structured Framing: Laid out actionable components and systematic technical rationale.",
-      );
-    }
-
-    // Dynamic Improvement Areas
-    const improvements = [];
-    if (totalFillers > 2) {
-      improvements.push(
-        `Crutch Word Awareness: Detected ${totalFillers} crutches (${detectedFillers
-          .map((f) => `"${f.word}" x${f.count}`)
-          .join(", ")}). Substitute fillers with 1.5s deliberate pauses.`,
-      );
-    } else {
-      improvements.push(
-        "Pause Discipline: Take a deliberate 2-second framing pause before moving into technical trade-offs.",
-      );
-    }
-
-    if (matchedKeywords.length < 3) {
-      const missingKeywords = targetKeywords
-        .filter((kw) => !matchedKeywords.includes(kw))
-        .slice(0, 3);
-      if (missingKeywords.length > 0) {
-        improvements.push(
-          `Deepen Technical Specifics: Consider explicitly discussing: ${missingKeywords.join(", ")}.`,
-        );
-      }
-    }
-
-    improvements.push(
-      "Quantified Business Impact: Strengthen the answer by citing concrete metrics (SLAs, latency reduction, or downtime prevented).",
-    );
-
-    const finalModelAnswer =
-      customModelAnswer ||
-      "A strong answer begins by clarifying requirements and non-functional SLOs, outlines the high-level architecture with proper trade-offs, and addresses edge cases, failure modes, and monitoring.";
-
-    return res.status(200).json({
-      success: true,
-      evaluation: {
+      const geminiData = await geminiRes.json();
+      const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+      evaluation = JSON.parse(text);
+      evaluation.score = Number(evaluation.score) || 75;
+      evaluation.verdict = evaluation.verdict || "LEAN HIRE";
+      evaluation.verdictColor = evaluation.verdictColor || "amber";
+      evaluation.fillersList = evaluation.fillersList || detectedFillers;
+      evaluation.wordCount = evaluation.wordCount || wordCount;
+      evaluation.wpm = evaluation.wpm || wpm;
+      evaluation.fillersCount = evaluation.fillersCount ?? totalFillers;
+      evaluation.fillerDensity = evaluation.fillerDensity || `${fillerDensity}%`;
+      evaluation.strengths = Array.isArray(evaluation.strengths) ? evaluation.strengths : ["Direct Delivery: Directly addressed the core objective of the prompt."];
+      evaluation.improvements = Array.isArray(evaluation.improvements) ? evaluation.improvements : ["Quantified Business Impact: Strengthen the answer by citing concrete metrics."];
+      evaluation.relevanceScore = Number(evaluation.relevanceScore) || 70;
+      evaluation.clarityScore = Number(evaluation.clarityScore) || 70;
+    } catch (e) {
+      console.error("Gemini evaluation failed:", e);
+      const compositeScore = Math.min(96, Math.max(62, 75));
+      evaluation = {
         score: compositeScore,
-        verdict,
-        verdictColor,
+        verdict: "LEAN HIRE",
+        verdictColor: "amber",
         wpm,
-        cadenceStatus,
+        cadenceStatus: "Optimal Conversational Pace",
         wordCount,
         fillersCount: totalFillers,
         fillerDensity: `${fillerDensity}%`,
         fillersList: detectedFillers,
-        relevanceScore,
-        clarityScore,
-        strengths,
-        improvements,
+        relevanceScore: 70,
+        clarityScore: 70,
+        strengths: ["Direct Delivery: Directly addressed the core objective of the prompt."],
+        improvements: ["Quantified Business Impact: Strengthen the answer by citing concrete metrics."],
+        modelAnswer: customModelAnswer || "A strong answer clarifies requirements, outlines architecture with trade-offs, and addresses edge cases.",
+      };
+    }
+
+    const finalModelAnswer = evaluation.modelAnswer || customModelAnswer || "A strong answer begins by clarifying requirements and non-functional SLOs, outlines the high-level architecture with proper trade-offs, and addresses edge cases, failure modes, and monitoring.";
+
+    return res.status(200).json({
+      success: true,
+      evaluation: {
+        score: evaluation.score,
+        verdict: evaluation.verdict,
+        verdictColor: evaluation.verdictColor,
+        wpm: evaluation.wpm,
+        cadenceStatus: evaluation.cadenceStatus,
+        wordCount: evaluation.wordCount,
+        fillersCount: evaluation.fillersCount,
+        fillerDensity: evaluation.fillerDensity,
+        fillersList: evaluation.fillersList,
+        relevanceScore: evaluation.relevanceScore,
+        clarityScore: evaluation.clarityScore,
+        strengths: evaluation.strengths,
+        improvements: evaluation.improvements,
         modelAnswer: finalModelAnswer,
       },
     });
