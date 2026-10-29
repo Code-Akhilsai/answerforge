@@ -1,17 +1,13 @@
 import React, { useState } from "react";
-import { 
-  Cpu, 
-  Globe2, 
-  Zap, 
-  ShieldCheck, 
-  Layers, 
-  CheckCircle2, 
-  XCircle, 
-  Volume2, 
-  Radio, 
+import {
+  Cpu,
+  Globe2,
+  Zap,
+  ShieldCheck,
+  CheckCircle2,
+  XCircle,
+  Radio,
   ArrowRight,
-  Sparkles,
-  Server
 } from "lucide-react";
 
 export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
@@ -22,32 +18,35 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
       title: "Phonetic Dialect Invariance",
       icon: Globe2,
       subtitle: "Zero degradation across Indian & Global English accents",
-      description: "Generic Silicon Valley voice models frequently fail on regional Indian accents or mishear technical phonetics. Gnani's acoustic engine is calibrated on 10M+ hours of multilingual speech, accurately transcribing diverse accents with over 99.2% precision."
+      description:
+        "Generic Silicon Valley voice models frequently fail on regional Indian accents or mishear technical phonetics. Gnani's acoustic engine is calibrated on 10M+ hours of multilingual speech, accurately transcribing diverse accents with over 99.2% precision.",
     },
     {
       title: "Sub-180ms Round-trip Streaming",
       icon: Zap,
       subtitle: "Eliminates awkward 4-second LLM silence pauses",
-      description: "Standard voice wrappers take 3,000ms+ to transcribe, prompt, and synthesize voice. AnswerForge uses Gnani's bi-directional gRPC streaming to achieve conversational turn-around under 180ms, replicating real human interview cadence."
+      description:
+        "Standard voice wrappers take 3,000ms+ to transcribe, prompt, and synthesize voice. AnswerForge uses Gnani's bi-directional gRPC streaming to achieve conversational turn-around under 180ms, replicating real human interview cadence.",
     },
     {
       title: "Engineered Technical Lexicons",
       icon: Cpu,
       subtitle: "Custom phonetic vocabulary for tech, finance & cloud",
-      description: "Speech models often hallucinate jargon into common English words (transcribing 'Kubernetes' as 'Cooper net is' or 'Kafka' as 'café'). Gnani's specialized language model handles 50,000+ domain terms seamlessly."
+      description:
+        "Speech models often hallucinate jargon into common English words (transcribing 'Kubernetes' as 'Cooper net is' or 'Kafka' as 'café'). Gnani's specialized language model handles 50,000+ domain terms seamlessly.",
     },
     {
       title: "Enterprise Audio Privacy",
       icon: ShieldCheck,
       subtitle: "Zero audio retention for training, encrypted in flight",
-      description: "Your answers are processed strictly ephemerally in RAM and wiped post-session. Never stored to train external models. Compliant with SOC-2 Type II, ISO 27001, and GDPR standards."
-    }
+      description:
+        "Your answers are processed strictly ephemerally in RAM and wiped post-session. Never stored to train external models. Compliant with SOC-2 Type II, ISO 27001, and GDPR standards.",
+    },
   ];
 
   return (
     <section id="gnani-engine" className="py-24 bg-[#090b10] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400 mb-3">
@@ -58,9 +57,10 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
             Why Generic Voice Wrappers Fail in High-Stakes Tech Interviews
           </h2>
           <p className="mt-4 text-base text-zinc-400 leading-relaxed">
-            Most "AI mock interview" tools slap generic browser speech onto standard text LLMs. 
-            Here is why AnswerForge's integration with Gnani's enterprise conversational stack creates 
-            an authentic interview experience.
+            Most "AI mock interview" tools slap generic browser speech onto
+            standard text LLMs. Here is why AnswerForge's integration with
+            Gnani's enterprise conversational stack creates an authentic
+            interview experience.
           </p>
         </div>
 
@@ -69,7 +69,7 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
           {engineFeatures.map((feat, idx) => {
             const Icon = feat.icon;
             return (
-              <div 
+              <div
                 key={idx}
                 className="card-elevated rounded-2xl p-6 border border-zinc-800/80 hover:border-zinc-700 transition-all duration-200 flex flex-col justify-between group"
               >
@@ -103,7 +103,8 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
                 </span>
               </div>
               <div className="text-xs text-zinc-400 mt-0.5">
-                Evaluated against real candidate spoken audio containing multi-regional accents and technical terminology.
+                Evaluated against real candidate spoken audio containing
+                multi-regional accents and technical terminology.
               </div>
             </div>
             <button
@@ -119,7 +120,9 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="border-b border-zinc-800 bg-zinc-900/30 text-zinc-400 font-mono">
-                  <th className="py-3.5 px-5 font-semibold">Evaluation Criteria</th>
+                  <th className="py-3.5 px-5 font-semibold">
+                    Evaluation Criteria
+                  </th>
                   <th className="py-3.5 px-5 font-bold text-cyan-400 bg-cyan-950/20 border-x border-cyan-900/30">
                     AnswerForge (Gnani Core)
                   </th>
@@ -152,14 +155,14 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
                     Indian & Global Accent Robustness
                   </td>
                   <td className="py-4 px-5 font-medium text-emerald-300 bg-cyan-950/10 border-x border-cyan-900/20 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>99.2% accuracy across all regions</span>
                   </td>
                   <td className="py-4 px-5 text-zinc-400">
                     Zero verbal evaluation
                   </td>
                   <td className="py-4 px-5 text-zinc-400 flex items-center gap-1.5">
-                    <XCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                    <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
                     <span>Frequent drops on Hinglish & accents</span>
                   </td>
                 </tr>
@@ -169,14 +172,14 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
                     Technical Terminology Recognition
                   </td>
                   <td className="py-4 px-5 font-medium text-emerald-300 bg-cyan-950/10 border-x border-cyan-900/20 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>Custom acoustic vocab (50k+ terms)</span>
                   </td>
                   <td className="py-4 px-5 text-zinc-400">
                     Recognizes text only
                   </td>
                   <td className="py-4 px-5 text-zinc-400 flex items-center gap-1.5">
-                    <XCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                    <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
                     <span>Mangles 'gRPC', 'k8s', 'idempotency'</span>
                   </td>
                 </tr>
@@ -186,14 +189,14 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
                     Spoken Cadence & Filler Telemetry
                   </td>
                   <td className="py-4 px-5 font-medium text-emerald-300 bg-cyan-950/10 border-x border-cyan-900/20 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>WPM, crutch words, hesitation pauses</span>
                   </td>
                   <td className="py-4 px-5 text-zinc-400">
                     No acoustic telemetry
                   </td>
                   <td className="py-4 px-5 text-zinc-400 flex items-center gap-1.5">
-                    <XCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                    <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
                     <span>Rudimentary word count only</span>
                   </td>
                 </tr>
@@ -203,12 +206,10 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
                     Interviewer Voice Naturalness (TTS)
                   </td>
                   <td className="py-4 px-5 font-medium text-emerald-300 bg-cyan-950/10 border-x border-cyan-900/20 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>Neural expressive tone & micro-pauses</span>
                   </td>
-                  <td className="py-4 px-5 text-zinc-400">
-                    No audio output
-                  </td>
+                  <td className="py-4 px-5 text-zinc-400">No audio output</td>
                   <td className="py-4 px-5 text-zinc-400">
                     Monotone synthetic robotic voice
                   </td>
@@ -217,7 +218,6 @@ export default function GnaniEngineShowcase({ onOpenPracticeModal }) {
             </table>
           </div>
         </div>
-
       </div>
     </section>
   );

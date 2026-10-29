@@ -1,16 +1,13 @@
 import React, { useState } from "react";
-import { 
-  Code2, 
-  Layers, 
-  BarChart, 
-  Database, 
-  Briefcase, 
-  Compass, 
-  ArrowRight, 
-  Check, 
+import {
+  Code2,
+  Layers,
+  BarChart,
+  Database,
+  Briefcase,
+  Compass,
   ChevronRight,
-  Sparkles,
-  BookOpen
+  BookOpen,
 } from "lucide-react";
 
 export default function CuratedTracks({ onOpenPracticeModal }) {
@@ -24,8 +21,14 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
       level: "Senior to Principal SDE",
       questionsCount: "620+ Scenarios",
       duration: "45 min rounds",
-      samplePrompt: "Design an auto-scaling multi-tenant rate limiter with token bucket algorithm across 5 AWS regions.",
-      rubrics: ["Concurrency", "Consensus (Raft/Paxos)", "Partition Tolerance", "Failure Domains"]
+      samplePrompt:
+        "Design an auto-scaling multi-tenant rate limiter with token bucket algorithm across 5 AWS regions.",
+      rubrics: [
+        "Concurrency",
+        "Consensus (Raft/Paxos)",
+        "Partition Tolerance",
+        "Failure Domains",
+      ],
     },
     {
       category: "engineering",
@@ -34,8 +37,14 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
       level: "Staff Frontend Engineer",
       questionsCount: "380+ Scenarios",
       duration: "30 min rounds",
-      samplePrompt: "Architect a canvas-based collaborative spreadsheet supporting 100k active cells and 60 FPS scrolling.",
-      rubrics: ["Render Pipeline", "Virtualization", "Web Workers", "Hydration Bottlenecks"]
+      samplePrompt:
+        "Architect a canvas-based collaborative spreadsheet supporting 100k active cells and 60 FPS scrolling.",
+      rubrics: [
+        "Render Pipeline",
+        "Virtualization",
+        "Web Workers",
+        "Hydration Bottlenecks",
+      ],
     },
     {
       category: "product",
@@ -44,8 +53,14 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
       level: "Senior PM & Director",
       questionsCount: "450+ Scenarios",
       duration: "40 min rounds",
-      samplePrompt: "Design a monetization model for an open-source developer tool without alienating the community.",
-      rubrics: ["North Star Metric", "Go-To-Market", "Cannibalization Risk", "Unit Economics"]
+      samplePrompt:
+        "Design a monetization model for an open-source developer tool without alienating the community.",
+      rubrics: [
+        "North Star Metric",
+        "Go-To-Market",
+        "Cannibalization Risk",
+        "Unit Economics",
+      ],
     },
     {
       category: "data",
@@ -54,8 +69,14 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
       level: "Staff Data Engineer",
       questionsCount: "340+ Scenarios",
       duration: "35 min rounds",
-      samplePrompt: "Build a real-time feature store for a credit card fraud detection engine with sub-10ms inference SLAs.",
-      rubrics: ["Stream Processing", "Backfill Idempotency", "Schema Drift", "Data Lineage"]
+      samplePrompt:
+        "Build a real-time feature store for a credit card fraud detection engine with sub-10ms inference SLAs.",
+      rubrics: [
+        "Stream Processing",
+        "Backfill Idempotency",
+        "Schema Drift",
+        "Data Lineage",
+      ],
     },
     {
       category: "behavioral",
@@ -64,8 +85,14 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
       level: "Engineering Managers & VPs",
       questionsCount: "500+ Scenarios",
       duration: "30 min rounds",
-      samplePrompt: "Describe when a multi-quarter product launch failed to meet adoption targets. How did you handle stakeholder morale?",
-      rubrics: ["STAR Methodology", "Accountability", "Executive Composure", "De-escalation"]
+      samplePrompt:
+        "Describe when a multi-quarter product launch failed to meet adoption targets. How did you handle stakeholder morale?",
+      rubrics: [
+        "STAR Methodology",
+        "Accountability",
+        "Executive Composure",
+        "De-escalation",
+      ],
     },
     {
       category: "consulting",
@@ -74,19 +101,25 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
       level: "Associate & Engagement Mgr",
       questionsCount: "290+ Scenarios",
       duration: "45 min rounds",
-      samplePrompt: "A tier-1 telecom operator is facing a 22% margin squeeze in fiber rollout. Structure an 8-week diagnostic.",
-      rubrics: ["Issue Tree Structuring", "Mental Math / Cadence", "MECE Principle", "Synthesis"]
-    }
+      samplePrompt:
+        "A tier-1 telecom operator is facing a 22% margin squeeze in fiber rollout. Structure an 8-week diagnostic.",
+      rubrics: [
+        "Issue Tree Structuring",
+        "Mental Math / Cadence",
+        "MECE Principle",
+        "Synthesis",
+      ],
+    },
   ];
 
-  const filteredTracks = selectedCategory === "all" 
-    ? tracks 
-    : tracks.filter(t => t.category === selectedCategory);
+  const filteredTracks =
+    selectedCategory === "all"
+      ? tracks
+      : tracks.filter((t) => t.category === selectedCategory);
 
   return (
     <section id="role-tracks" className="py-24 bg-[#090b10] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
@@ -98,8 +131,9 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
               Curated Tracks for Technical & Leadership Roles
             </h2>
             <p className="mt-2 text-zinc-400 max-w-2xl text-sm sm:text-base">
-              Every role has unique evaluation criteria. Our questions and Gnani voice prompts 
-              mirror real loops at leading tech firms and top product companies.
+              Every role has unique evaluation criteria. Our questions and Gnani
+              voice prompts mirror real loops at leading tech firms and top
+              product companies.
             </p>
           </div>
 
@@ -111,8 +145,8 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
               { id: "product", label: "Product" },
               { id: "data", label: "Data & ML" },
               { id: "behavioral", label: "Behavioral" },
-              { id: "consulting", label: "Consulting" }
-            ].map(cat => (
+              { id: "consulting", label: "Consulting" },
+            ].map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
@@ -191,7 +225,6 @@ export default function CuratedTracks({ onOpenPracticeModal }) {
             );
           })}
         </div>
-
       </div>
     </section>
   );

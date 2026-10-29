@@ -1,35 +1,30 @@
-import React, { useState } from "react";
-import { 
-  X, 
-  Mic, 
-  Volume2, 
-  Sparkles, 
-  ShieldCheck, 
-  ChevronRight, 
-  Check, 
-  Clock, 
-  Settings2,
-  Play,
-  RotateCcw
-} from "lucide-react";
+import { useState } from "react";
+import { X, Mic, ShieldCheck, Check, Play } from "lucide-react";
 
 export default function QuickPracticeModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1); // 1: Config, 2: Active Voice Simulation
-  const [selectedRole, setSelectedRole] = useState("Distributed Systems (Staff SRE)");
-  const [selectedSeniority, setSelectedSeniority] = useState("Senior / Staff (L5-L6)");
-  const [selectedDialect, setSelectedDialect] = useState("Indic & Global English (Gnani Adaptive)");
+  const [selectedRole, setSelectedRole] = useState(
+    "Distributed Systems (Staff SRE)",
+  );
+  const [selectedSeniority, setSelectedSeniority] = useState(
+    "Senior / Staff (L5-L6)",
+  );
+  const [selectedDialect, setSelectedDialect] = useState(
+    "Indic & Global English (Gnani Adaptive)",
+  );
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [hasCompletedRound, setHasCompletedRound] = useState(false);
 
   if (!isOpen) return null;
 
-  const sampleQuestion = "Explain how you would design a cache invalidation strategy for a distributed service where stale reads could lead to financial losses.";
+  const sampleQuestion =
+    "Explain how you would design a cache invalidation strategy for a distributed service where stale reads could lead to financial losses.";
 
   const handleStartSession = () => {
     setStep(2);
     setHasCompletedRound(false);
     // Play the question via TTS
-    if ('speechSynthesis' in window) {
+    if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(sampleQuestion);
       utterance.rate = 0.95;
@@ -47,7 +42,6 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-xl rounded-2xl bg-zinc-900 border border-zinc-700/80 shadow-2xl overflow-hidden text-slate-100">
-        
         {/* Modal Top Bar */}
         <div className="p-5 bg-zinc-950/80 border-b border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -62,14 +56,16 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
                 </span>
               </div>
               <div className="text-[11px] text-zinc-400">
-                {step === 1 ? "Configure your practice round" : "Active Voice Evaluation"}
+                {step === 1
+                  ? "Configure your practice round"
+                  : "Active Voice Evaluation"}
               </div>
             </div>
           </div>
 
           <button
             onClick={() => {
-              if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+              if ("speechSynthesis" in window) window.speechSynthesis.cancel();
               onClose();
             }}
             className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
@@ -80,7 +76,6 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
 
         {/* Modal Content */}
         <div className="p-6">
-          
           {step === 1 ? (
             <div className="space-y-5">
               {/* Role Track */}
@@ -91,7 +86,7 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full py-2.5 px-3 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full py-2.5 px-3 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white focus:outline-none"
                 >
                   <option>Distributed Systems (Staff SRE)</option>
                   <option>Frontend Architecture & Web Vitals</option>
@@ -111,7 +106,7 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
                     "Mid-Level (L4 / 2-4 YOE)",
                     "Senior / Staff (L5-L6)",
                     "Principal / Architect",
-                    "Engineering Manager"
+                    "Engineering Manager",
                   ].map((level) => (
                     <button
                       key={level}
@@ -147,7 +142,8 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
 
               {/* Privacy Notice */}
               <div className="p-3 rounded-xl bg-zinc-950/40 border border-zinc-800/60 text-[11px] text-zinc-400 leading-normal">
-                Audio streams are processed ephemerally in RAM. No microphone recording is retained or stored to train external LLMs.
+                Audio streams are processed ephemerally in RAM. No microphone
+                recording is retained or stored to train external LLMs.
               </div>
 
               {/* Submit CTA */}
@@ -165,7 +161,6 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
           ) : (
             /* Step 2: Active Chamber */
             <div className="space-y-4">
-              
               {/* Question Banner */}
               <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800">
                 <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mb-1.5">
@@ -204,7 +199,9 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
                       <Check className="w-3.5 h-3.5" />
                       <span>EVALUATION COMPLETE: GRADE A (91/100)</span>
                     </span>
-                    <span className="text-[11px] font-mono text-zinc-400">Latency: 146ms</span>
+                    <span className="text-[11px] font-mono text-zinc-400">
+                      Latency: 146ms
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
@@ -214,16 +211,25 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
                     </div>
                     <div className="p-2 rounded bg-zinc-900">
                       <div className="text-zinc-500 text-[10px]">Fillers</div>
-                      <div className="font-bold text-emerald-400 mt-0.5">1 word (0.8%)</div>
+                      <div className="font-bold text-emerald-400 mt-0.5">
+                        1 word (0.8%)
+                      </div>
                     </div>
                     <div className="p-2 rounded bg-zinc-900">
-                      <div className="text-zinc-500 text-[10px]">STAR Depth</div>
+                      <div className="text-zinc-500 text-[10px]">
+                        STAR Depth
+                      </div>
                       <div className="font-bold text-cyan-400 mt-0.5">94%</div>
                     </div>
                   </div>
 
                   <div className="text-xs text-zinc-300 leading-relaxed bg-zinc-900/60 p-2.5 rounded-lg border border-zinc-800">
-                    <span className="text-cyan-400 font-semibold">Coach Feedback:</span> Excellent description of write-through caching with Redis locks. Next time, state your fallback for when cache and DB synchronization fails during split-brain.
+                    <span className="text-cyan-400 font-semibold">
+                      Coach Feedback:
+                    </span>{" "}
+                    Excellent description of write-through caching with Redis
+                    locks. Next time, state your fallback for when cache and DB
+                    synchronization fails during split-brain.
                   </div>
 
                   <div className="flex gap-2 pt-1">
@@ -235,7 +241,9 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
                     </button>
                     <button
                       onClick={() => {
-                        alert("Account registration: In real production, this routes to signup / onboarding dashboard.");
+                        alert(
+                          "Account registration: In real production, this routes to signup / onboarding dashboard.",
+                        );
                         onClose();
                       }}
                       className="w-1/2 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-xs text-slate-950 font-bold"
@@ -245,12 +253,9 @@ export default function QuickPracticeModal({ isOpen, onClose }) {
                   </div>
                 </div>
               )}
-
             </div>
           )}
-
         </div>
-
       </div>
     </div>
   );

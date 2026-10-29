@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Mic, LogIn, Menu, X, LayoutDashboard } from "lucide-react";
+import { LogIn, Menu, X, LayoutDashboard } from "lucide-react";
+import AnimatedLogo from "./AnimatedLogo";
 
 export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
   const [scrolled, setScrolled] = useState(false);
@@ -33,17 +34,7 @@ export default function Navbar({ onOpenSignInModal, onScrollToDemo }) {
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
-                <Mic className="w-4 h-4" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold tracking-tight text-white">
-                  Answer<span className="text-cyan-400">Forge</span>
-                </span>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">
-                  Gnani AI Voice
-                </span>
-              </div>
+              <AnimatedLogo />
             </Link>
           </div>
 

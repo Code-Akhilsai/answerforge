@@ -1,16 +1,14 @@
-import React, { useState, useRef } from "react";
-import { 
-  Mic, 
-  MicOff, 
-  Volume2, 
-  Pause, 
-  Sparkles, 
-  CheckCircle2, 
-  AlertCircle, 
-  Clock, 
-  Activity, 
-  ArrowRight,
-  TrendingUp
+import { useState, useRef } from "react";
+import {
+  Mic,
+  MicOff,
+  Volume2,
+  Pause,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  Activity,
+  TrendingUp,
 } from "lucide-react";
 
 export default function InteractiveInterviewSandbox() {
@@ -26,46 +24,59 @@ export default function InteractiveInterviewSandbox() {
   const tracks = [
     {
       title: "Backend & Systems",
-      question: "How would you prevent duplicate payments in an API when a network timeout occurs?",
-      simulatedAnswer: "To prevent duplicate payments, [um] I would implement an idempotency key using UUIDv4 in the request header. When a request arrives, we store this key in Redis with an atomic lease. [like] If a client retries due to a timeout, we check the cache and return the existing response instead of processing the charge again.",
+      question:
+        "How would you prevent duplicate payments in an API when a network timeout occurs?",
+      simulatedAnswer:
+        "To prevent duplicate payments, [um] I would implement an idempotency key using UUIDv4 in the request header. When a request arrives, we store this key in Redis with an atomic lease. [like] If a client retries due to a timeout, we check the cache and return the existing response instead of processing the charge again.",
       feedback: {
         pace: "142 WPM",
         paceStatus: "Good Conversational Pace",
         fillers: "2 words detected ('um', 'like')",
         score: "92 / 100",
-        strengths: "Clear architectural explanation with idempotency keys and Redis caching.",
-        improvements: "State the fallback strategy if the Redis distributed lock expires mid-transaction.",
-        suggested: "Also mention using a database unique constraint as the final safety net in case of cache expiration."
-      }
+        strengths:
+          "Clear architectural explanation with idempotency keys and Redis caching.",
+        improvements:
+          "State the fallback strategy if the Redis distributed lock expires mid-transaction.",
+        suggested:
+          "Also mention using a database unique constraint as the final safety net in case of cache expiration.",
+      },
     },
     {
       title: "Product Management",
-      question: "Our mobile app onboarding completion dropped by 15% this week. How would you investigate it?",
-      simulatedAnswer: "First, I would segment the drop-off by app version, operating system, and geographical region. [uh] Then I would inspect the onboarding funnel step-by-step to see if the drop is concentrated on SMS OTP verification or permissions. [basically] Once identified, I'd coordinate with QA to test device compatibility.",
+      question:
+        "Our mobile app onboarding completion dropped by 15% this week. How would you investigate it?",
+      simulatedAnswer:
+        "First, I would segment the drop-off by app version, operating system, and geographical region. [uh] Then I would inspect the onboarding funnel step-by-step to see if the drop is concentrated on SMS OTP verification or permissions. [basically] Once identified, I'd coordinate with QA to test device compatibility.",
       feedback: {
         pace: "138 WPM",
         paceStatus: "Calm & Structured",
         fillers: "2 words detected ('uh', 'basically')",
         score: "90 / 100",
         strengths: "Good structured funnel triage and cohort segmentation.",
-        improvements: "Include a measurable goal and expected recovery timeline.",
-        suggested: "Define a 48-hour triage SLA and an A/B rollback trigger if a newly released build is the root cause."
-      }
+        improvements:
+          "Include a measurable goal and expected recovery timeline.",
+        suggested:
+          "Define a 48-hour triage SLA and an A/B rollback trigger if a newly released build is the root cause.",
+      },
     },
     {
       title: "Behavioral (STAR)",
-      question: "Tell me about a time you missed a project deadline. How did you handle the situation?",
-      simulatedAnswer: "During a major cloud migration, we encountered an unexpected database schema incompatibility 3 days before release. [you know] Instead of hiding it, I immediately flagged the blocker to our stakeholders, presented 2 recovery options, and negotiated a 48-hour delay. We completed the migration over the weekend with zero data loss.",
+      question:
+        "Tell me about a time you missed a project deadline. How did you handle the situation?",
+      simulatedAnswer:
+        "During a major cloud migration, we encountered an unexpected database schema incompatibility 3 days before release. [you know] Instead of hiding it, I immediately flagged the blocker to our stakeholders, presented 2 recovery options, and negotiated a 48-hour delay. We completed the migration over the weekend with zero data loss.",
       feedback: {
         pace: "144 WPM",
         paceStatus: "Clear & Confident",
         fillers: "1 word detected ('you know')",
         score: "94 / 100",
-        strengths: "Excellent STAR framework adherence: transparent communication and clear ownership.",
+        strengths:
+          "Excellent STAR framework adherence: transparent communication and clear ownership.",
         improvements: "Quantify the team effort or downtime saved.",
-        suggested: "Highlight post-mortem actions taken to prevent similar schema drift in future sprints."
-      }
-    }
+        suggested:
+          "Highlight post-mortem actions taken to prevent similar schema drift in future sprints.",
+      },
+    },
   ];
 
   const current = tracks[selectedTrack];
@@ -73,11 +84,11 @@ export default function InteractiveInterviewSandbox() {
   // TTS for question
   const handlePlayQuestion = () => {
     if (isQuestionSpeaking) {
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       setIsQuestionSpeaking(false);
     } else {
       setIsQuestionSpeaking(true);
-      if ('speechSynthesis' in window) {
+      if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(current.question);
         utterance.rate = 0.96;
@@ -113,9 +124,12 @@ export default function InteractiveInterviewSandbox() {
 
   // Mic recording
   const handleToggleMic = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Browser speech recognition not supported in this browser. Running simulation instead.");
+      alert(
+        "Browser speech recognition not supported in this browser. Running simulation instead.",
+      );
       handleSimulate();
       return;
     }
@@ -159,22 +173,38 @@ export default function InteractiveInterviewSandbox() {
   const renderTranscript = (text, limit) => {
     const words = text.split(" ").slice(0, limit);
     return words.map((w, i) => {
-      const isFiller = ["[um]", "[like]", "[basically]", "[uh]", "[you", "know]"].some(f => w.toLowerCase().includes(f.replace(/[\[\]]/g, "")));
+      const isFiller = [
+        "[um]",
+        "[like]",
+        "[basically]",
+        "[uh]",
+        "[you",
+        "know]",
+      ].some((f) => w.toLowerCase().includes(f.replace(/[\[\]]/g, "")));
       if (isFiller) {
         return (
-          <span key={i} className="inline-block bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded mx-0.5 text-xs font-mono font-semibold border border-amber-500/30">
+          <span
+            key={i}
+            className="inline-block bg-amber-500/20 text-amber-300 px-1 py-0.5 rounded mx-0.5 text-xs font-mono font-semibold border border-amber-500/30"
+          >
             {w}
           </span>
         );
       }
-      return <span key={i} className="text-zinc-200">{w} </span>;
+      return (
+        <span key={i} className="text-zinc-200">
+          {w}{" "}
+        </span>
+      );
     });
   };
 
   return (
-    <section id="interactive-sandbox" className="py-20 bg-[#090b10] border-t border-zinc-800">
+    <section
+      id="interactive-sandbox"
+      className="py-20 bg-[#090b10] border-t border-zinc-800"
+    >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-800/60 text-xs font-mono text-cyan-400 mb-3">
@@ -184,7 +214,8 @@ export default function InteractiveInterviewSandbox() {
             Try the Voice Interview Sandbox
           </h2>
           <p className="mt-2 text-zinc-400 text-sm">
-            Hear the question, speak or simulate your answer, and see real-time speech feedback.
+            Hear the question, speak or simulate your answer, and see real-time
+            speech feedback.
           </p>
 
           {/* Track selector */}
@@ -197,7 +228,7 @@ export default function InteractiveInterviewSandbox() {
                   setRevealedWords(999);
                   setHasCompleted(true);
                   setMicTranscript("");
-                  if (isQuestionSpeaking && 'speechSynthesis' in window) {
+                  if (isQuestionSpeaking && "speechSynthesis" in window) {
                     window.speechSynthesis.cancel();
                     setIsQuestionSpeaking(false);
                   }
@@ -216,10 +247,8 @@ export default function InteractiveInterviewSandbox() {
 
         {/* Sandbox Core Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-          
           {/* Left: Question + Recording */}
           <div className="space-y-4">
-            
             {/* Question Card */}
             <div className="p-5 rounded-2xl bg-zinc-900/90 border border-zinc-800 shadow-xl">
               <div className="flex items-center justify-between pb-3 border-b border-zinc-800 text-xs">
@@ -271,18 +300,22 @@ export default function InteractiveInterviewSandbox() {
                   <button
                     onClick={handleToggleMic}
                     className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1 ${
-                      isRecordingMic 
-                        ? "bg-red-500/20 text-red-300 border-red-500 animate-pulse" 
+                      isRecordingMic
+                        ? "bg-red-500/20 text-red-300 border-red-500 animate-pulse"
                         : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700"
                     }`}
                   >
-                    {isRecordingMic ? <MicOff className="w-3 h-3" /> : <Mic className="w-3 h-3 text-zinc-400" />}
+                    {isRecordingMic ? (
+                      <MicOff className="w-3 h-3" />
+                    ) : (
+                      <Mic className="w-3 h-3 text-zinc-400" />
+                    )}
                     <span>{isRecordingMic ? "Stop" : "Use Mic"}</span>
                   </button>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 min-h-[120px] text-xs leading-relaxed text-zinc-300">
+              <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 min-h-30 text-xs leading-relaxed text-zinc-300">
                 {micTranscript ? (
                   <div>{micTranscript}</div>
                 ) : (
@@ -292,10 +325,11 @@ export default function InteractiveInterviewSandbox() {
 
               <div className="text-[11px] text-zinc-500 flex items-center justify-between">
                 <span>Amber tags highlight detected filler words</span>
-                <span className="font-mono text-cyan-400">Low-latency STT stream</span>
+                <span className="font-mono text-cyan-400">
+                  Low-latency STT stream
+                </span>
               </div>
             </div>
-
           </div>
 
           {/* Right: Clean AI Feedback Card */}
@@ -371,11 +405,8 @@ export default function InteractiveInterviewSandbox() {
                 </p>
               </div>
             </div>
-
           </div>
-
         </div>
-
       </div>
     </section>
   );

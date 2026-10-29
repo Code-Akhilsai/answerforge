@@ -32,6 +32,8 @@ import {
 } from "lucide-react";
 import api from "../api";
 
+import AnimatedLogo from "../components/AnimatedLogo";
+
 import { INTERVIEW_TOPICS } from "../data/interviewTopics";
 
 export default function Dashboard() {
@@ -40,17 +42,34 @@ export default function Dashboard() {
 
   // User credentials
   const userName = localStorage.getItem("userName") || "Candidate";
-  const userEmail = localStorage.getItem("userEmail") || "candidate@answerforge.dev";
+  const userEmail =
+    localStorage.getItem("userEmail") || "candidate@answerforge.dev";
 
-  // Real-time Persistent Practice Sessions
-  const [sessions, setSessions] = useState(() => {
-    try {
-      const saved = localStorage.getItem("answerforge_sessions");
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  // Real-time Persistent Practice Sessions (per-user, MongoDB via API)
+  const [sessions, setSessions] = useState([]);
+
+  useEffect(() => {
+    setSessions([]);
+    const fetchSessions = async () => {
+      try {
+        const response = await api.get("/interview/practice/sessions");
+        if (response.data?.success) {
+          const allSessions = response.data.sessions || [];
+          const userEmail = localStorage.getItem("userEmail") || "";
+          setSessions(
+            allSessions.filter(
+              (s) => s.userEmail === userEmail || !s.userEmail,
+            ),
+          );
+        }
+      } catch (err) {
+        console.warn("Failed to fetch practice sessions:", err);
+        setSessions([]);
+      }
+    };
+
+    fetchSessions();
+  }, []);
 
   // Practice Studio Modal
   const [isStudioOpen, setIsStudioOpen] = useState(false);
@@ -87,8 +106,10 @@ export default function Dashboard() {
   const audioPlayerRef = useRef(new Audio());
 
   // Active Topic & Question Selection
-  const activeTopic = INTERVIEW_TOPICS[activeTopicKey] || INTERVIEW_TOPICS.system_design;
-  const currentQ = activeTopic.questions[activeQuestionIdx] || activeTopic.questions[0];
+  const activeTopic =
+    INTERVIEW_TOPICS[activeTopicKey] || INTERVIEW_TOPICS.system_design;
+  const currentQ =
+    activeTopic.questions[activeQuestionIdx] || activeTopic.questions[0];
 
   // Live Metrics
   const totalSessions = sessions.length;
@@ -359,12 +380,13 @@ export default function Dashboard() {
       const samples = new Int16Array(channelData.length);
       for (let i = 0; i < channelData.length; i++) {
         let s = Math.max(-1, Math.min(1, channelData[i]));
-        samples[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        samples[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
       }
       const wavBuffer = new ArrayBuffer(44 + samples.length * 2);
       const view = new DataView(wavBuffer);
       const writeString = (offset, str) => {
-        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+        for (let i = 0; i < str.length; i++)
+          view.setUint8(offset + i, str.charCodeAt(i));
       };
       writeString(0, "RIFF");
       view.setUint32(4, 36 + samples.length * 2, true);
@@ -379,7 +401,8 @@ export default function Dashboard() {
       view.setUint16(34, 16, true);
       writeString(36, "data");
       view.setUint32(40, samples.length * 2, true);
-      for (let i = 0; i < samples.length; i++) view.setInt16(44 + i * 2, samples[i], true);
+      for (let i = 0; i < samples.length; i++)
+        view.setInt16(44 + i * 2, samples[i], true);
       await audioCtx.close();
       return new Blob([wavBuffer], { type: "audio/wav" });
     } catch (err) {
@@ -411,7 +434,9 @@ export default function Dashboard() {
       if (response.data?.success && response.data?.transcript) {
         setTranscript(response.data.transcript);
       } else {
-        setSttError("Transcription returned no text. Please record and try again.");
+        setSttError(
+          "Transcription returned no text. Please record and try again.",
+        );
       }
     } catch (err) {
       console.warn("Gnani STT API notice:", err);
@@ -504,7 +529,7 @@ export default function Dashboard() {
   };
 
   // 5. Save Completed Session into Real-Time History
-  const handleSaveToDashboard = () => {
+  const handleSaveToDashboard = async () => {
     if (!evaluation) return;
 
     const newSession = {
@@ -535,16 +560,30 @@ export default function Dashboard() {
 
     const updated = [newSession, ...sessions];
     setSessions(updated);
-    localStorage.setItem("answerforge_sessions", JSON.stringify(updated));
+
+    try {
+      await api.post("/interview/practice/session", newSession);
+    } catch (err) {
+      console.warn("Failed to save practice session to server:", err);
+      // Revert optimistic update on failure
+      setSessions(sessions);
+    }
 
     setIsStudioOpen(false);
   };
 
-  const handleDeleteSession = (sessionId, e) => {
+  const handleDeleteSession = async (sessionId, e) => {
     e.stopPropagation();
-    const updated = sessions.filter((s) => s.id !== sessionId);
-    setSessions(updated);
-    localStorage.setItem("answerforge_sessions", JSON.stringify(updated));
+    try {
+      await api.delete(`/interview/practice/session/${sessionId}`);
+      setSessions(
+        sessions.filter(
+          (s) => s.id !== sessionId && String(s._id) !== sessionId,
+        ),
+      );
+    } catch (err) {
+      console.warn("Failed to delete practice session:", err);
+    }
     if (viewingSession?.id === sessionId) {
       setViewingSession(null);
     }
@@ -558,6 +597,7 @@ export default function Dashboard() {
   const handleSignOut = () => {
     localStorage.removeItem("userName");
     localStorage.removeItem("userEmail");
+    setSessions([]);
     navigate("/");
   };
 
@@ -568,32 +608,13 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 group-hover:scale-105 transition-transform">
-                <Mic className="w-4 h-4" />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold tracking-tight text-white">
-                  Answer<span className="text-cyan-400">Forge</span>
-                </span>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">
-                  Gnani Voice AI
-                </span>
-              </div>
+              <AnimatedLogo />
             </Link>
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => openStudioWithQuestion("system_design", 0)}
-              className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Start Spoken Practice</span>
-              <span className="sm:hidden">Practice</span>
-            </button>
-
             <div className="flex items-center gap-2.5 pl-3 border-l border-zinc-800">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 border border-cyan-500/30 flex items-center justify-center text-xs font-bold text-cyan-300">
+              <div className="w-8 h-8 rounded-full bg-linear-to-tr from-cyan-500/20 to-indigo-500/20 border border-cyan-500/30 flex items-center justify-center text-xs font-bold text-cyan-300">
                 {userName.charAt(0).toUpperCase()}
               </div>
               <div className="hidden lg:block text-left">
@@ -619,7 +640,7 @@ export default function Dashboard() {
       {/* Main Dashboard Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Real-time Welcome Banner */}
-        <div className="relative rounded-2xl bg-gradient-to-r from-cyan-950/40 via-zinc-900 to-indigo-950/30 border border-zinc-800/90 p-6 sm:p-8 overflow-hidden shadow-xl">
+        <div className="relative rounded-2xl bg-linear-to-r from-cyan-950/40 via-zinc-900 to-indigo-950/30 border border-zinc-800/90 p-6 sm:p-8 overflow-hidden shadow-xl">
           <div className="absolute right-0 top-0 -mt-12 -mr-12 w-64 h-64 rounded-full bg-cyan-500/5 blur-3xl pointer-events-none"></div>
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -638,7 +659,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="flex-shrink-0 flex items-center gap-3">
+            <div className="shrink-0 flex items-center gap-3">
               <button
                 onClick={() => openStudioWithQuestion("system_design", 0)}
                 className="w-full sm:w-auto px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/10 transition-all active:scale-95"
@@ -748,7 +769,8 @@ export default function Dashboard() {
                 <span>Select an Interview Topic</span>
               </h2>
               <p className="text-xs text-zinc-400">
-                Pick a core domain to practice realistic questions calibrated for Tier-1 tech interviews
+                Pick a core domain to practice realistic questions calibrated
+                for Tier-1 tech interviews
               </p>
             </div>
           </div>
@@ -815,7 +837,8 @@ export default function Dashboard() {
                 </span>
               </h2>
               <p className="text-xs text-zinc-500">
-                Your actual voice recordings, Gnani STT transcripts, and evaluations
+                Your actual voice recordings, Gnani STT transcripts, and
+                evaluations
               </p>
             </div>
 
@@ -892,8 +915,8 @@ export default function Dashboard() {
                           session.statusColor === "emerald"
                             ? "bg-emerald-950 text-emerald-400 border border-emerald-800/50"
                             : session.statusColor === "cyan"
-                            ? "bg-cyan-950 text-cyan-400 border border-cyan-800/50"
-                            : "bg-amber-950 text-amber-400 border border-amber-800/50"
+                              ? "bg-cyan-950 text-cyan-400 border border-cyan-800/50"
+                              : "bg-amber-950 text-amber-400 border border-amber-800/50"
                         }`}
                       >
                         {session.evaluation}
@@ -917,7 +940,9 @@ export default function Dashboard() {
                       <span>&bull;</span>
                       <span className="text-zinc-300">
                         Pace:{" "}
-                        <strong className="text-cyan-400">{session.pace}</strong>
+                        <strong className="text-cyan-400">
+                          {session.pace}
+                        </strong>
                       </span>
                       <span>&bull;</span>
                       <span className="text-zinc-400">
@@ -938,7 +963,12 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={(e) => handleDeleteSession(session.id, e)}
+                        onClick={(e) => {
+                          const sid =
+                            session.id || session._id || session.sessionId;
+                          if (!sid) return;
+                          handleDeleteSession(sid, e);
+                        }}
                         title="Delete session"
                         className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors"
                       >
@@ -988,7 +1018,7 @@ export default function Dashboard() {
 
                 <div className="h-6 w-px bg-zinc-800 hidden sm:block"></div>
 
-                <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 flex-shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
                   <Mic className="w-4.5 h-4.5" />
                 </div>
                 <div>
@@ -999,7 +1029,8 @@ export default function Dashboard() {
                     </span>
                   </h2>
                   <p className="text-xs text-zinc-400 hidden sm:block">
-                    Select a topic, answer the interview question aloud, and receive automated diagnostic scoring
+                    Select a topic, answer the interview question aloud, and
+                    receive automated diagnostic scoring
                   </p>
                 </div>
               </div>
@@ -1133,7 +1164,7 @@ export default function Dashboard() {
 
               {currentQ.signals && (
                 <div className="pt-2 border-t border-zinc-800/80 text-[11px] text-zinc-400 flex items-start gap-1.5">
-                  <span className="text-cyan-400 font-semibold flex-shrink-0">
+                  <span className="text-cyan-400 font-semibold shrink-0">
                     Interviewer Signals:
                   </span>
                   <span className="text-zinc-400">{currentQ.signals}</span>
@@ -1169,7 +1200,9 @@ export default function Dashboard() {
                     className="w-full sm:w-auto px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
                   >
                     <Mic className="w-4 h-4" />
-                    <span>{audioBlob ? "Record Again" : "Start Recording"}</span>
+                    <span>
+                      {audioBlob ? "Record Again" : "Start Recording"}
+                    </span>
                   </button>
                 ) : (
                   <div className="flex flex-wrap items-center justify-center gap-3 w-full sm:w-auto">
@@ -1207,7 +1240,9 @@ export default function Dashboard() {
                 <div className="p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-xs text-zinc-300 font-medium">
                     <Headphones className="w-4 h-4 text-cyan-400" />
-                    <span>Audio Preview Recorded ({formatTime(recordingSeconds)})</span>
+                    <span>
+                      Audio Preview Recorded ({formatTime(recordingSeconds)})
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
                     <audio
@@ -1230,7 +1265,7 @@ export default function Dashboard() {
 
               {sttError && (
                 <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{sttError}</span>
                 </div>
               )}
@@ -1269,11 +1304,14 @@ export default function Dashboard() {
                   value={transcript}
                   onChange={(e) => setTranscript(e.target.value)}
                   placeholder="Your transcribed spoken answer will appear here via Gnani STT..."
-                  className="w-full p-3.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-400/80 focus:ring-1 focus:ring-cyan-400/20 transition-all font-sans leading-relaxed resize-none"
+                  className="w-full p-3.5 rounded-xl bg-zinc-950 border text-xs placeholder-zinc-500 focus:outline-none focus:border-cyan-400/80 focus:ring-1 focus:ring-cyan-400/20 transition-all font-sans leading-relaxed resize-none"
                 />
                 <div className="mt-1 flex items-center justify-between text-[11px] text-zinc-500">
                   <span>
-                    Words: {transcript.trim() ? transcript.trim().split(/\s+/).length : 0}
+                    Words:{" "}
+                    {transcript.trim()
+                      ? transcript.trim().split(/\s+/).length
+                      : 0}
                   </span>
                   <span>Gnani Prisma STT v3</span>
                 </div>
@@ -1304,7 +1342,7 @@ export default function Dashboard() {
 
               {evalError && (
                 <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{evalError}</span>
                 </div>
               )}
@@ -1328,8 +1366,8 @@ export default function Dashboard() {
                             evaluation.verdictColor === "emerald"
                               ? "bg-emerald-950 text-emerald-400 border border-emerald-800/50"
                               : evaluation.verdictColor === "cyan"
-                              ? "bg-cyan-950 text-cyan-400 border border-cyan-800/50"
-                              : "bg-amber-950 text-amber-400 border border-amber-800/50"
+                                ? "bg-cyan-950 text-cyan-400 border border-cyan-800/50"
+                                : "bg-amber-950 text-amber-400 border border-amber-800/50"
                           }`}
                         >
                           {evaluation.verdict}
@@ -1365,7 +1403,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Sub-Metrics */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-center">
                     <div className="text-[10px] font-mono text-zinc-500 uppercase">
                       Relevance
@@ -1380,7 +1418,9 @@ export default function Dashboard() {
                     </div>
                     <div className="text-xl font-bold font-mono text-cyan-400 mt-0.5">
                       {evaluation.wpm}{" "}
-                      <span className="text-xs font-normal text-zinc-500">WPM</span>
+                      <span className="text-xs font-normal text-zinc-500">
+                        WPM
+                      </span>
                     </div>
                   </div>
                   <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-center">
@@ -1411,7 +1451,7 @@ export default function Dashboard() {
                     <ul className="space-y-2 text-zinc-300">
                       {evaluation.strengths.map((str, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0"></span>
                           <span>{str}</span>
                         </li>
                       ))}
@@ -1426,7 +1466,7 @@ export default function Dashboard() {
                     <ul className="space-y-2 text-zinc-300">
                       {evaluation.improvements.map((imp, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0"></span>
                           <span>{imp}</span>
                         </li>
                       ))}
@@ -1435,7 +1475,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Model Answer (Gnani TTS) */}
-                <div className="p-4 rounded-xl bg-gradient-to-r from-cyan-950/20 to-zinc-900 border border-cyan-500/20 space-y-2">
+                <div className="p-4 rounded-xl bg-linear-to-r from-cyan-950/20 to-zinc-900 border border-cyan-500/20 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono font-bold text-cyan-300 uppercase flex items-center gap-1.5">
                       <Headphones className="w-3.5 h-3.5" />
@@ -1469,7 +1509,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Save CTA */}
-                <div className="pt-2 flex items-center justify-end gap-3">
+                <div className="pt-2 flex flex-col sm:flex-row items-end justify-end gap-3">
                   <button
                     onClick={handleTryAnotherQuestion}
                     className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 hover:text-white transition-colors flex items-center gap-1.5"
@@ -1526,7 +1566,7 @@ export default function Dashboard() {
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Back</span>
                 </button>
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center font-mono text-xl font-bold text-cyan-300 flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center font-mono text-xl font-bold text-cyan-300 shrink-0">
                   {viewingSession.score}
                 </div>
                 <div>
@@ -1587,7 +1627,7 @@ export default function Dashboard() {
                   <ul className="space-y-1 text-zinc-300">
                     {viewingSession.strengths.map((s, idx) => (
                       <li key={idx} className="flex items-start gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 flex-shrink-0"></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shrink-0"></span>
                         <span>{s}</span>
                       </li>
                     ))}
@@ -1604,7 +1644,7 @@ export default function Dashboard() {
                   <ul className="space-y-1 text-zinc-300">
                     {viewingSession.improvements.map((i, idx) => (
                       <li key={idx} className="flex items-start gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1 flex-shrink-0"></span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1 shrink-0"></span>
                         <span>{i}</span>
                       </li>
                     ))}

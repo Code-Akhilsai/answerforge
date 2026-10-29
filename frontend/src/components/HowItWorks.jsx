@@ -1,5 +1,4 @@
-import React from "react";
-import { Volume2, Mic, Activity, ArrowRight } from "lucide-react";
+import { Volume2, Mic, Activity } from "lucide-react";
 
 export default function HowItWorks() {
   const steps = [
@@ -7,26 +6,31 @@ export default function HowItWorks() {
       step: "01",
       icon: Volume2,
       title: "Listen to the Question",
-      description: "AnswerForge uses Gnani's neural Text-to-Speech (TTS) to ask authentic interview questions with natural pacing and intonations."
+      description:
+        "AnswerForge uses Gnani's neural Text-to-Speech (TTS) to ask authentic interview questions with natural pacing and intonations.",
     },
     {
       step: "02",
       icon: Mic,
       title: "Speak Your Answer Aloud",
-      description: "Speak naturally into your microphone. Gnani's multi-dialect Speech-to-Text (STT) transcribes your voice in real-time, even with regional accents."
+      description:
+        "Speak naturally into your microphone. Gnani's multi-dialect Speech-to-Text (STT) transcribes your voice in real-time, even with regional accents.",
     },
     {
       step: "03",
       icon: Activity,
       title: "Instant Personalized Feedback",
-      description: "The AI highlights filler words ('um', 'like'), checks your Words-Per-Minute cadence, evaluates content depth, and provides a polished answer."
-    }
+      description:
+        "The AI highlights filler words ('um', 'like'), checks your Words-Per-Minute cadence, evaluates content depth, and provides a polished answer.",
+    },
   ];
 
   return (
-    <section id="how-it-works" className="py-20 bg-[#07090d] border-t border-zinc-800">
+    <section
+      id="how-it-works"
+      className="py-20 bg-[#07090d] border-t border-zinc-800"
+    >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400 mb-3">
@@ -36,7 +40,8 @@ export default function HowItWorks() {
             How AnswerForge Works
           </h2>
           <p className="mt-2 text-zinc-400 text-sm">
-            Practice speaking under realistic conditions without human scheduling friction.
+            Practice speaking under realistic conditions without human
+            scheduling friction.
           </p>
         </div>
 
@@ -71,7 +76,6 @@ export default function HowItWorks() {
             );
           })}
         </div>
-
       </div>
     </section>
   );

@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { User } from "../models/user.models.js";
+
 /**
  * Common filler words and phrases to analyze in speech
  */
@@ -306,6 +308,115 @@ export const synthesizeSpeech = async (req, res) => {
       success: false,
       message: error.message || "Failed to synthesize speech",
       fallback: true,
+    });
+  }
+};
+
+/**
+ * Save a completed practice session to the authenticated user's record (MongoDB)
+ */
+export const savePracticeSession = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const userEmail = req.user.email;
+    const sessionData = req.body;
+
+    if (!sessionData || !sessionData.id) {
+      return res.status(400).json({
+        success: false,
+        message: "Session data is required",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const sessionWithUser = {
+      ...sessionData,
+      userId: userId.toString(),
+      userEmail,
+    };
+
+    user.practiceSessions.push(sessionWithUser);
+    await user.save();
+
+    const savedSession = user.practiceSessions[
+      user.practiceSessions.length - 1
+    ];
+
+    return res.status(201).json({
+      success: true,
+      message: "Practice session saved",
+      session: savedSession,
+    });
+  } catch (error) {
+    console.error("Save practice session error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to save practice session",
+    });
+  }
+};
+
+/**
+ * Fetch all practice sessions for the authenticated user
+ */
+export const getPracticeSessions = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId).select("practiceSessions");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const sessions = (user.practiceSessions || []).reverse(); // newest first
+    return res.status(200).json({
+      success: true,
+      sessions,
+    });
+  } catch (error) {
+    console.error("Get practice sessions error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to fetch practice sessions",
+    });
+  }
+};
+
+/**
+ * Delete a practice session for the authenticated user
+ */
+export const deletePracticeSession = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const sessionId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const exists = user.practiceSessions.some(
+      (s) => s.id === sessionId || s._id.toString() === sessionId,
+    );
+    if (!exists) {
+      return res.status(404).json({ success: false, message: "Session not found" });
+    }
+
+    user.practiceSessions = user.practiceSessions.filter(
+      (s) => s.id !== sessionId && s._id.toString() !== sessionId,
+    );
+    await user.save();
+
+    return res.status(200).json({ success: true, message: "Session deleted" });
+  } catch (error) {
+    console.error("Delete practice session error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to delete practice session",
     });
   }
 };

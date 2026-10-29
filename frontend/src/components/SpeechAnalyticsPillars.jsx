@@ -1,15 +1,11 @@
-import React, { useState } from "react";
-import { 
-  Activity, 
-  Clock, 
-  AlertTriangle, 
-  Compass, 
-  BarChart3, 
-  CheckCircle, 
-  ArrowRight,
-  TrendingDown,
-  VolumeX,
-  Target
+import { useState } from "react";
+import {
+  Activity,
+  Clock,
+  AlertTriangle,
+  Compass,
+  CheckCircle,
+  Target,
 } from "lucide-react";
 
 export default function SpeechAnalyticsPillars() {
@@ -22,7 +18,8 @@ export default function SpeechAnalyticsPillars() {
       icon: Clock,
       badge: "WPM TELEMETRY",
       title: "Real-time Words-Per-Minute & Micro-Pause Analytics",
-      description: "When candidates get anxious, speech accelerates beyond 170 WPM (sounding flustered) or drops below 110 WPM (sounding hesitant). Gnani's speech stream measures velocity in real time, encouraging a steady 135–150 WPM executive delivery.",
+      description:
+        "When candidates get anxious, speech accelerates beyond 170 WPM (sounding flustered) or drops below 110 WPM (sounding hesitant). Gnani's speech stream measures velocity in real time, encouraging a steady 135–150 WPM executive delivery.",
       visual: {
         metricLabel: "Measured Average Cadence",
         metricValue: "142 WPM",
@@ -31,9 +28,9 @@ export default function SpeechAnalyticsPillars() {
         detailList: [
           "Micro-pause detection (highlights unnatural >2.5s silences)",
           "Dynamic speed adaptation based on answer complexity",
-          "Breath cadence and sentence conclusion indicators"
-        ]
-      }
+          "Breath cadence and sentence conclusion indicators",
+        ],
+      },
     },
     {
       id: "fillers",
@@ -41,7 +38,8 @@ export default function SpeechAnalyticsPillars() {
       icon: AlertTriangle,
       badge: "VOCAL PURITY",
       title: "Timestamped Frequency of Filler Words",
-      description: "Subconscious filler words like 'um', 'like', 'you know', and 'basically' erode perceived authority. AnswerForge logs every instance with precise timestamps, tracking your filler word density per minute across practice sessions.",
+      description:
+        "Subconscious filler words like 'um', 'like', 'you know', and 'basically' erode perceived authority. AnswerForge logs every instance with precise timestamps, tracking your filler word density per minute across practice sessions.",
       visual: {
         metricLabel: "Filler Word Density",
         metricValue: "1.2%",
@@ -50,9 +48,9 @@ export default function SpeechAnalyticsPillars() {
         detailList: [
           "Instant acoustic tagging of 'um', 'uh', 'like', 'sort of'",
           "Timestamped playback to review exact hesitation moments",
-          "Remediation drills focused on tactical pause replacement"
-        ]
-      }
+          "Remediation drills focused on tactical pause replacement",
+        ],
+      },
     },
     {
       id: "star",
@@ -60,7 +58,8 @@ export default function SpeechAnalyticsPillars() {
       icon: Compass,
       badge: "METHODOLOGICAL DEPTH",
       title: "Automated Situation, Task, Action & Result Decomposition",
-      description: "Top tech and consulting companies expect structured answers. AnswerForge analyzes spoken sentences to determine if you framed the Situation, stated the core Task, demonstrated decisive Action, and quantified the Result.",
+      description:
+        "Top tech and consulting companies expect structured answers. AnswerForge analyzes spoken sentences to determine if you framed the Situation, stated the core Task, demonstrated decisive Action, and quantified the Result.",
       visual: {
         metricLabel: "STAR Adherence Score",
         metricValue: "92 / 100",
@@ -69,9 +68,9 @@ export default function SpeechAnalyticsPillars() {
         detailList: [
           "Identifies missing Quantified Outcomes in behavioral prompts",
           "Detects when candidates over-index on Situation and under-index on Action",
-          "Automated restructuring suggestions to tighten delivery"
-        ]
-      }
+          "Automated restructuring suggestions to tighten delivery",
+        ],
+      },
     },
     {
       id: "tone",
@@ -79,7 +78,8 @@ export default function SpeechAnalyticsPillars() {
       icon: Target,
       badge: "ACOUSTIC CONFIDENCE",
       title: "Acoustic Stability, Pitch Modulation & Uptalk Flagging",
-      description: "Interviewers subconsciously assess confidence from pitch stability. Our acoustic model flags uptalk (pitch rising at the end of sentences like a question), monotone droning, and vocal strain under challenging technical follow-ups.",
+      description:
+        "Interviewers subconsciously assess confidence from pitch stability. Our acoustic model flags uptalk (pitch rising at the end of sentences like a question), monotone droning, and vocal strain under challenging technical follow-ups.",
       visual: {
         metricLabel: "Confidence Stability Index",
         metricValue: "96.4%",
@@ -88,19 +88,20 @@ export default function SpeechAnalyticsPillars() {
         detailList: [
           "Uptalk mitigation (replaces questioning inflection with decisive cadence)",
           "Monotone pitch variation analysis for sustained listener engagement",
-          "Stress resilience score across 30-minute intensive rounds"
-        ]
-      }
-    }
+          "Stress resilience score across 30-minute intensive rounds",
+        ],
+      },
+    },
   ];
 
   const current = pillars[activePillar];
-  const Icon = current.icon;
 
   return (
-    <section id="speech-analytics" className="py-24 bg-[#07090d] relative border-b border-zinc-800/80">
+    <section
+      id="speech-analytics"
+      className="py-24 bg-[#07090d] relative border-b border-zinc-800/80"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400 mb-3">
@@ -111,8 +112,9 @@ export default function SpeechAnalyticsPillars() {
             How AnswerForge Deconstructs Spoken Answers
           </h2>
           <p className="mt-4 text-base text-zinc-400 leading-relaxed">
-            Hiring managers don't just judge what you say; they evaluate how you say it under pressure.
-            Our platform evaluates both linguistic content and acoustic delivery.
+            Hiring managers don't just judge what you say; they evaluate how you
+            say it under pressure. Our platform evaluates both linguistic
+            content and acoustic delivery.
           </p>
         </div>
 
@@ -132,16 +134,22 @@ export default function SpeechAnalyticsPillars() {
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isSelected ? "bg-cyan-500 text-slate-950" : "bg-zinc-800 text-zinc-400"
-                  }`}>
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isSelected
+                        ? "bg-cyan-500 text-slate-950"
+                        : "bg-zinc-800 text-zinc-400"
+                    }`}
+                  >
                     <PIcon className="w-4 h-4" />
                   </div>
                   <span className="text-[10px] font-mono text-zinc-500">
                     0{idx + 1}
                   </span>
                 </div>
-                <div className={`text-xs font-bold tracking-tight ${isSelected ? "text-white" : "text-zinc-300"}`}>
+                <div
+                  className={`text-xs font-bold tracking-tight ${isSelected ? "text-white" : "text-zinc-300"}`}
+                >
                   {p.name}
                 </div>
               </button>
@@ -151,7 +159,6 @@ export default function SpeechAnalyticsPillars() {
 
         {/* Detailed Showcase Box */}
         <div className="card-elevated rounded-2xl p-6 sm:p-8 border border-zinc-800/80 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
           {/* Left: Explanation */}
           <div className="lg:col-span-7">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-950/70 border border-cyan-800/40 text-[11px] font-mono text-cyan-300 mb-3">
@@ -166,8 +173,11 @@ export default function SpeechAnalyticsPillars() {
 
             <div className="mt-6 space-y-2.5">
               {current.visual.detailList.map((item, i) => (
-                <div key={i} className="flex items-start gap-2.5 text-xs text-zinc-300">
-                  <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div
+                  key={i}
+                  className="flex items-start gap-2.5 text-xs text-zinc-300"
+                >
+                  <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span>{item}</span>
                 </div>
               ))}
@@ -177,8 +187,12 @@ export default function SpeechAnalyticsPillars() {
           {/* Right: Telemetry Widget Preview */}
           <div className="lg:col-span-5 bg-zinc-950/90 rounded-xl p-5 border border-zinc-800 shadow-inner">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
-              <span className="text-xs font-mono text-zinc-400">{current.visual.graphLabel}</span>
-              <span className="text-[11px] font-mono text-cyan-400">LIVE SENSOR</span>
+              <span className="text-xs font-mono text-zinc-400">
+                {current.visual.graphLabel}
+              </span>
+              <span className="text-[11px] font-mono text-cyan-400">
+                LIVE SENSOR
+              </span>
             </div>
 
             <div className="my-5 text-center p-5 rounded-xl bg-zinc-900/60 border border-zinc-800">
@@ -201,13 +215,11 @@ export default function SpeechAnalyticsPillars() {
                 <span className="text-cyan-400">99.4%</span>
               </div>
               <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 w-[94%] rounded-full"></div>
+                <div className="h-full bg-linear-to-r from-cyan-500 to-indigo-500 w-[94%] rounded-full"></div>
               </div>
             </div>
           </div>
-
         </div>
-
       </div>
     </section>
   );
