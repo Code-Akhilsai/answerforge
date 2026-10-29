@@ -24,7 +24,11 @@ const FILLER_PATTERNS = [
  */
 export const transcribeAudio = async (req, res) => {
   try {
-    const { audioBase64, mimeType = "audio/webm", languageCode = "en-IN" } = req.body;
+    const {
+      audioBase64,
+      mimeType = "audio/webm",
+      languageCode = "en-IN",
+    } = req.body;
 
     if (!audioBase64) {
       return res.status(400).json({
@@ -46,7 +50,11 @@ export const transcribeAudio = async (req, res) => {
 
     const formData = new FormData();
     const audioBlob = new Blob([audioBuffer], { type: mimeType });
-    const ext = mimeType.includes("wav") ? "wav" : mimeType.includes("mp3") ? "mp3" : "webm";
+    const ext = mimeType.includes("wav")
+      ? "wav"
+      : mimeType.includes("mp3")
+        ? "mp3"
+        : "webm";
     formData.append("audio_file", audioBlob, `recording.${ext}`);
     formData.append("language_code", languageCode);
 
@@ -102,7 +110,6 @@ export const evaluateAnswer = async (req, res) => {
       question = "Explain your architectural approach.",
       transcript = "",
       track = "system_design",
-      expectedKeywords = [],
       modelAnswer: customModelAnswer = "",
       durationSeconds = 30,
     } = req.body;
@@ -167,7 +174,8 @@ Return ONLY valid JSON with fields: score (0-100 number), verdict (string), verd
         },
       );
       const geminiData = await geminiRes.json();
-      const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+      const text =
+        geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
       evaluation = JSON.parse(text);
       evaluation.score = Number(evaluation.score) || 75;
       evaluation.verdict = evaluation.verdict || "LEAN HIRE";
@@ -176,9 +184,18 @@ Return ONLY valid JSON with fields: score (0-100 number), verdict (string), verd
       evaluation.wordCount = evaluation.wordCount || wordCount;
       evaluation.wpm = evaluation.wpm || wpm;
       evaluation.fillersCount = evaluation.fillersCount ?? totalFillers;
-      evaluation.fillerDensity = evaluation.fillerDensity || `${fillerDensity}%`;
-      evaluation.strengths = Array.isArray(evaluation.strengths) ? evaluation.strengths : ["Direct Delivery: Directly addressed the core objective of the prompt."];
-      evaluation.improvements = Array.isArray(evaluation.improvements) ? evaluation.improvements : ["Quantified Business Impact: Strengthen the answer by citing concrete metrics."];
+      evaluation.fillerDensity =
+        evaluation.fillerDensity || `${fillerDensity}%`;
+      evaluation.strengths = Array.isArray(evaluation.strengths)
+        ? evaluation.strengths
+        : [
+            "Direct Delivery: Directly addressed the core objective of the prompt.",
+          ];
+      evaluation.improvements = Array.isArray(evaluation.improvements)
+        ? evaluation.improvements
+        : [
+            "Quantified Business Impact: Strengthen the answer by citing concrete metrics.",
+          ];
       evaluation.relevanceScore = Number(evaluation.relevanceScore) || 70;
       evaluation.clarityScore = Number(evaluation.clarityScore) || 70;
     } catch (e) {
@@ -196,13 +213,22 @@ Return ONLY valid JSON with fields: score (0-100 number), verdict (string), verd
         fillersList: detectedFillers,
         relevanceScore: 70,
         clarityScore: 70,
-        strengths: ["Direct Delivery: Directly addressed the core objective of the prompt."],
-        improvements: ["Quantified Business Impact: Strengthen the answer by citing concrete metrics."],
-        modelAnswer: customModelAnswer || "A strong answer clarifies requirements, outlines architecture with trade-offs, and addresses edge cases.",
+        strengths: [
+          "Direct Delivery: Directly addressed the core objective of the prompt.",
+        ],
+        improvements: [
+          "Quantified Business Impact: Strengthen the answer by citing concrete metrics.",
+        ],
+        modelAnswer:
+          customModelAnswer ||
+          "A strong answer clarifies requirements, outlines architecture with trade-offs, and addresses edge cases.",
       };
     }
 
-    const finalModelAnswer = evaluation.modelAnswer || customModelAnswer || "A strong answer begins by clarifying requirements and non-functional SLOs, outlines the high-level architecture with proper trade-offs, and addresses edge cases, failure modes, and monitoring.";
+    const finalModelAnswer =
+      evaluation.modelAnswer ||
+      customModelAnswer ||
+      "A strong answer begins by clarifying requirements and non-functional SLOs, outlines the high-level architecture with proper trade-offs, and addresses edge cases, failure modes, and monitoring.";
 
     return res.status(200).json({
       success: true,
@@ -330,7 +356,9 @@ export const savePracticeSession = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     const sessionWithUser = {
@@ -342,9 +370,8 @@ export const savePracticeSession = async (req, res) => {
     user.practiceSessions.push(sessionWithUser);
     await user.save();
 
-    const savedSession = user.practiceSessions[
-      user.practiceSessions.length - 1
-    ];
+    const savedSession =
+      user.practiceSessions[user.practiceSessions.length - 1];
 
     return res.status(201).json({
       success: true,
@@ -369,7 +396,9 @@ export const getPracticeSessions = async (req, res) => {
 
     const user = await User.findById(userId).select("practiceSessions");
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     const sessions = (user.practiceSessions || []).reverse(); // newest first
@@ -396,14 +425,18 @@ export const deletePracticeSession = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     const exists = user.practiceSessions.some(
       (s) => s.id === sessionId || s._id.toString() === sessionId,
     );
     if (!exists) {
-      return res.status(404).json({ success: false, message: "Session not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Session not found" });
     }
 
     user.practiceSessions = user.practiceSessions.filter(

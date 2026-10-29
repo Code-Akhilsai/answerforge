@@ -1,13 +1,5 @@
-import React, { useState } from "react";
-import {
-  Mic,
-  Volume2,
-  Play,
-  Pause,
-  ArrowRight,
-  LogIn,
-  Sparkles,
-} from "lucide-react";
+import { useState } from "react";
+import { Mic, Volume2, Play, Pause, ArrowRight, LogIn } from "lucide-react";
 
 export default function Hero({ onOpenSignInModal, onScrollToDemo }) {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
