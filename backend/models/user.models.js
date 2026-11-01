@@ -23,8 +23,23 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: [true, "Password is required"],
-      minLength: [8, "Password must be at least 8 characters long"],
+      required: false,
+    },
+
+    googleId: {
+      type: String,
+      default: null,
+    },
+
+    photoURL: {
+      type: String,
+      default: null,
+    },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
     },
 
     practiceSessions: [
@@ -49,6 +64,9 @@ const userSchema = new mongoose.Schema(
         modelAnswer: { type: String },
       },
     ],
+
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: { type: Date },
   },
   {
     timestamps: true,
