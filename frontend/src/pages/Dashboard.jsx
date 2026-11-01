@@ -324,11 +324,6 @@ export default function Dashboard() {
     switchQuestion(nextIdx, activeTopicKey);
   };
 
-  // Advance to next question cleanly
-  const handleTryAnotherQuestion = () => {
-    handleNextQuestion();
-  };
-
   // 1. Microphone Recording
   const startRecording = async () => {
     try {
@@ -1761,7 +1756,9 @@ export default function Dashboard() {
                 className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-sm sm:text-xs font-semibold text-zinc-400 hover:text-zinc-200 flex items-center gap-1.5 sm:gap-2 transition-colors"
               >
                 <ArrowLeft className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                <span className="hidden sm:inline">Exit Studio / Back to Dashboard</span>
+                <span className="hidden sm:inline">
+                  Exit Studio / Back to Dashboard
+                </span>
                 <span className="block sm:hidden text-[10px]">Back</span>
               </button>
 
