@@ -59,7 +59,9 @@ function App() {
             <>
               <PageTitle title="Dashboard — AnswerForge" />
               <ProtectedRoute>
-                <Dashboard />
+                <Dashboard
+                  key={localStorage.getItem("userEmail") || ""}
+                />
               </ProtectedRoute>
             </>
           }

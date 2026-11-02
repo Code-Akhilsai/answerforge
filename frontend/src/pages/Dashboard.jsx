@@ -57,10 +57,11 @@ export default function Dashboard() {
         const response = await api.get("/interview/practice/sessions");
         if (response.data?.success) {
           const allSessions = response.data.sessions || [];
-          const userEmail = localStorage.getItem("userEmail") || "";
+          const currentUserEmail =
+            localStorage.getItem("userEmail") || "";
           setSessions(
             allSessions.filter(
-              (s) => s.userEmail === userEmail || !s.userEmail,
+              (s) => s.userEmail === currentUserEmail || !s.userEmail,
             ),
           );
         }

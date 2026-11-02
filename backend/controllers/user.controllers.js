@@ -59,12 +59,16 @@ const userloginController = async (req, res) => {
 
     if (!token) return res.status(403).json({ message: "Please login again" });
 
+    // Set cookie with cross-site-safe attributes over HTTPS
+    const isSecure = req.protocol === "https" || req.headers["x-forwarded-proto"] === "https";
+
     return res
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        secure: req.protocol === "https",
-        sameSite: "none",
+        secure: isSecure,
+        sameSite: isSecure ? "none" : "lax",
+        path: "/",
       })
       .json({
         message: "Login successful",
@@ -127,12 +131,16 @@ const googleAuthController = async (req, res) => {
       { expiresIn: "7d" },
     );
 
+    // Set cookie with cross-site-safe attributes over HTTPS
+    const isSecure = req.protocol === "https" || req.headers["x-forwarded-proto"] === "https";
+
     return res
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        secure: req.protocol === "https",
-        sameSite: "lax",
+        secure: isSecure,
+        sameSite: isSecure ? "none" : "lax",
+        path: "/",
       })
       .json({
         message: "Google login successful",
