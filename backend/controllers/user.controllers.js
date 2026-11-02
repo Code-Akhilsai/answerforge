@@ -64,7 +64,7 @@ const userloginController = async (req, res) => {
       .cookie("token", token, {
         httpOnly: true,
         secure: req.protocol === "https",
-        sameSite: "lax",
+        sameSite: "none",
       })
       .json({
         message: "Login successful",
