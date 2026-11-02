@@ -407,13 +407,14 @@ export default function SignInModal({
             <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs flex items-start gap-2 mb-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-cyan-400 mt-0.5" />
               <span>
-                Demo mode: reset token generated for <strong>{resetEmail}</strong>.
-                Copy the token below and paste it in the Reset Token field.
+                Demo mode: reset token generated for{" "}
+                <strong>{resetEmail}</strong>. Copy the token below and paste it
+                in the Reset Token field.
               </span>
             </div>
 
             <div className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 mb-2 flex flex-col sm:flex-row items-start sm:items-center gap-2">
-              <span className="text-[10px] font-mono text-zinc-400 flex-shrink-0">
+              <span className="text-[10px] font-mono text-zinc-400 shrink-0">
                 Token:
               </span>
               <input
