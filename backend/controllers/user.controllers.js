@@ -63,8 +63,8 @@ const userloginController = async (req, res) => {
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        secure: req.protocol === "https",
+        sameSite: "lax",
       })
       .json({
         message: "Login successful",
@@ -131,7 +131,7 @@ const googleAuthController = async (req, res) => {
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        secure: false,
+        secure: req.protocol === "https",
         sameSite: "lax",
       })
       .json({
