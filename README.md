@@ -73,8 +73,9 @@ All API routes are prefixed with `/api/v1`.
 - Used to convert the candidate's spoken answer into text before evaluation.
 
 ### Text-to-Speech (TTS)
-- **Provider:** Gnani via Vachana API (`https://api.vachana.ai/api/v1/tts/inference`)
+- **Provider:** Gnani TTS via Vachana API (Timbre model)
 - **Endpoint:** `POST /interview/tts`
+- **API:** `https://api.vachana.ai/api/v1/tts/inference`
 - **Model:** `timbre-v2.5`
 - **Voice:** `Nalini`
 - **Language:** `en-IN`
