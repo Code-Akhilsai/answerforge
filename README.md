@@ -8,7 +8,7 @@ AnswerForge is a full-stack AI-powered interview preparation platform. Candidate
 
 - **Voice Interview Studio** — Record your answer aloud, transcribe with Gnani STT, and get instant diagnostic scoring.
 - **AI Evaluation (Gemini)** — Scores answers on relevance, clarity, structure, and verbal cadence using `gemini-3.1-flash-lite`.
-- **Gnani TTS** — Listen to question audio, evaluation feedback, and model answers in multiple voices (Nalini, Meera, Karan, Diya, Aarav).
+- **Gnani TTS** — Listen to question audio, evaluation feedback, and model answers via Gnani TTS (Nalini voice).
 - **Per-User Practice History** — Every practice session is saved to MongoDB under the logged-in user; each user sees only their own history.
 - **Delete Session** — Remove individual practice records from your dashboard.
 - **Forgot Password** — Token-based password reset flow (demo mode returns token via API).
@@ -74,8 +74,7 @@ All API routes are prefixed with `/api/v1`.
 - **Provider:** Gnani via Vachana API (`https://api.vachana.ai/api/v1/tts/inference`)
 - **Endpoint:** `POST /interview/tts`
 - **Model:** `timbre-v2.5`
-- **Default Voice:** `Nalini`
-- **Available Voices:** Nalini, Meera, Karan, Diya, Aarav
+- **Voice:** `Nalini`
 - **Language:** `en-IN`
 - Used to speak the interview question, evaluation feedback, and model answer aloud.
 
@@ -203,7 +202,7 @@ AnswerForge/
 
 - Real-time voice-to-text transcription (Gnani STT)
 - AI-powered interview scoring (Gemini `gemini-3.1-flash-lite`)
-- Spoken feedback in multiple voices (Gnani TTS)
+- Spoken feedback via Gnani TTS (Nalini voice)
 - Per-user persistent practice history (MongoDB)
 - Fully responsive studio + dashboard
 
