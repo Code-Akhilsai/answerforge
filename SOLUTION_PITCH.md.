@@ -1,0 +1,33 @@
+# AnswerForge – AI-Powered Voice Interview Practice
+
+## Problem
+Many candidates struggle with interview preparation because they lack opportunities to practise speaking naturally and receive immediate, personalized feedback on their answers.
+
+## Solution
+AnswerForge is an AI-powered voice interview practice platform that helps users improve their interview skills through realistic voice-based interviews, answer evaluation, and spoken feedback.
+
+## How It Works
+1. Users select an interview question and answer it using their voice.
+2. **Gnani AI Speech-to-Text (STT)** converts the spoken response into text.
+3. **Google Gemini** evaluates the response based on relevance, clarity, structure, and other performance factors.
+4. **Gnani AI Text-to-Speech (TTS)** delivers interview questions, feedback, and suggested answers through voice.
+
+## Key Features
+- Voice-based interview practice.
+- Speech-to-text transcription using Gnani AI.
+- AI-powered answer evaluation and scoring.
+- Spoken feedback and model answers using Gnani AI TTS.
+- Interview session history and performance tracking.
+- User authentication and session management.
+
+## Technology Stack
+- **Frontend:** React, Vite, Tailwind CSS
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB
+- **AI Integration:** Gnani AI (Prisma STT and Timbre TTS), Google Gemini
+
+## Expected Impact
+AnswerForge makes interview preparation more interactive and accessible by allowing candidates to practise speaking, understand their strengths and weaknesses, and improve their confidence through immediate AI-powered feedback.
+
+**Project:** https://answerforge.netlify.app/  
+**GitHub:** https://github.com/Code-Akhilsai/answerforge
